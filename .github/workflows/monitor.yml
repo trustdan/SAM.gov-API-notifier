@@ -54,6 +54,15 @@ jobs:
     - name: Build monitor
       run: make build
       
+    - name: Debug - Check if secrets are available
+      run: |
+        echo "Checking if secrets are properly set..."
+        echo "SAM_API_KEY available: ${{ secrets.SAM_API_KEY != '' && 'YES' || 'NO' }}"
+        echo "GITHUB_TOKEN available: ${{ github.token != '' && 'YES' || 'NO' }}"
+        echo "EMAIL_FROM available: ${{ secrets.EMAIL_FROM != '' && 'YES' || 'NO' }}"
+        echo "EMAIL_TO available: ${{ secrets.EMAIL_TO != '' && 'YES' || 'NO' }}"
+        echo "SMTP_HOST available: ${{ secrets.SMTP_HOST != '' && 'YES' || 'NO' }}"
+        
     - name: Validate environment
       run: ./bin/monitor -validate-env
       env:
@@ -108,7 +117,7 @@ jobs:
         SLACK_USERNAME: ${{ secrets.SLACK_USERNAME }}
         GITHUB_TOKEN: ${{ github.token }}
         GITHUB_OWNER: ${{ github.repository_owner }}
-        GITHUB_REPOSITORY: ${{ github.event.repository.name }}
+        GITHUB_REPOSITORY: SAM.gov-API-notifier
         
     - name: Upload state
       uses: actions/upload-artifact@v4
