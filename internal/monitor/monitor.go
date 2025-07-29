@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/yourusername/sam-gov-monitor/internal/config"
@@ -200,49 +199,38 @@ func (m *Monitor) runQueries(ctx context.Context) ([]samgov.QueryResult, error) 
 	enabledQueries := m.config.GetEnabledQueries()
 	results := make([]samgov.QueryResult, len(enabledQueries))
 	
-	// Rate limiting: 1 request per 2 seconds to avoid 429 errors
-	rateLimiter := time.NewTicker(5 * time.Second)
-	defer rateLimiter.Stop()
-	
-	// Use buffered channel to limit concurrent requests
-	semaphore := make(chan struct{}, 2) // Max 2 concurrent requests to reduce rate limiting
-	var wg sync.WaitGroup
+	// Sequential execution with rate limiting to avoid 429 errors
+	// SAM.gov API has strict rate limits, so we execute queries sequentially
+	// with a delay between each request
 	
 	for i, query := range enabledQueries {
-		wg.Add(1)
-		
-		// Wait for rate limiter
-		<-rateLimiter.C
-		
-		go func(index int, q config.Query) {
-			defer wg.Done()
-			
-			// Acquire semaphore
-			semaphore <- struct{}{}
-			defer func() { <-semaphore }()
-			
+		// Add delay between requests (except for the first one)
+		if i > 0 {
+			delay := 10 * time.Second // 10 seconds between requests
 			if m.verbose {
-				log.Printf("Starting query: %s", q.Name)
+				log.Printf("Waiting %v before next query to avoid rate limits", delay)
 			}
-			
-			start := time.Now()
-			result := m.executeQuery(ctx, q)
-			result.ExecutionTime = time.Since(start)
-			
-			results[index] = result
-			
-			if m.verbose {
-				if result.Error != nil {
-					log.Printf("Query '%s' failed in %v: %s", q.Name, result.ExecutionTime, result.Error.Error())
-				} else {
-					log.Printf("Query '%s' completed in %v: %d opportunities", q.Name, result.ExecutionTime, len(result.Opportunities))
-				}
+			time.Sleep(delay)
+		}
+		
+		if m.verbose {
+			log.Printf("Starting query: %s", query.Name)
+		}
+		
+		start := time.Now()
+		result := m.executeQuery(ctx, query)
+		result.ExecutionTime = time.Since(start)
+		
+		results[i] = result
+		
+		if m.verbose {
+			if result.Error != nil {
+				log.Printf("Query '%s' failed in %v: %s", query.Name, result.ExecutionTime, result.Error.Error())
+			} else {
+				log.Printf("Query '%s' completed in %v: %d opportunities", query.Name, result.ExecutionTime, len(result.Opportunities))
 			}
-		}(i, query)
+		}
 	}
-	
-	// Wait for all queries to complete
-	wg.Wait()
 	
 	return results, nil
 }
@@ -494,6 +482,19 @@ func buildNotificationConfig() notify.NotificationConfig {
 	githubToken := os.Getenv("GITHUB_TOKEN")
 	githubOwner := os.Getenv("GITHUB_OWNER")
 	githubRepo := os.Getenv("GITHUB_REPOSITORY")
+	
+	// Handle case where GITHUB_REPOSITORY includes owner prefix (e.g., "owner/repo")
+	if githubRepo != "" && strings.Contains(githubRepo, "/") {
+		parts := strings.SplitN(githubRepo, "/", 2)
+		if len(parts) == 2 {
+			// If no GITHUB_OWNER is set, use the owner from the repository string
+			if githubOwner == "" {
+				githubOwner = parts[0]
+			}
+			githubRepo = parts[1]
+		}
+	}
+	
 	githubEnabled := githubToken != "" && githubOwner != "" && githubRepo != ""
 	
 	if githubEnabled {

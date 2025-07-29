@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -60,7 +61,7 @@ func (c *Client) Search(ctx context.Context, params map[string]string) (*SearchR
 
 	// Retry configuration
 	maxRetries := 3
-	baseDelay := 1 * time.Second
+	baseDelay := 5 * time.Second // Increased base delay for rate limits
 	
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Build URL with parameters
@@ -113,6 +114,7 @@ func (c *Client) Search(ctx context.Context, params map[string]string) (*SearchR
 			// Retry on rate limit errors with exponential backoff
 			if resp.StatusCode == 429 && attempt < maxRetries {
 				delay := time.Duration(1<<attempt) * baseDelay * 2 // Longer delay for rate limits
+				log.Printf("Received 429 rate limit error, retrying in %v (attempt %d/%d)", delay, attempt+1, maxRetries)
 				time.Sleep(delay)
 				continue
 			}
