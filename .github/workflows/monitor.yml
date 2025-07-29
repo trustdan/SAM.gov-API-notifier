@@ -71,7 +71,7 @@ jobs:
       run: mkdir -p state
       
     - name: Download previous state
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: monitor-state
         path: state/
@@ -101,7 +101,7 @@ jobs:
         GITHUB_REPOSITORY: ${{ github.event.repository.name }}
         
     - name: Upload state
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: monitor-state
         path: state/
@@ -109,7 +109,7 @@ jobs:
       if: always()
       
     - name: Upload logs on failure
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: monitor-logs-${{ github.run_number }}
         path: |
@@ -168,7 +168,7 @@ jobs:
       run: make build
       
     - name: Download state
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: monitor-state
         path: state/
