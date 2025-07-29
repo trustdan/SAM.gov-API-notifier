@@ -24,6 +24,7 @@ type Monitor struct {
 	verbose     bool
 	dryRun      bool
 	lookbackDays int
+	debugEmail  bool
 }
 
 // Options for creating a new Monitor
@@ -34,6 +35,7 @@ type Options struct {
 	Verbose      bool
 	DryRun       bool
 	LookbackDays int
+	DebugEmail   bool
 }
 
 // RunReport contains the results of a monitoring run
@@ -85,6 +87,7 @@ func New(opts Options) (*Monitor, error) {
 		verbose:      opts.Verbose,
 		dryRun:       opts.DryRun,
 		lookbackDays: opts.LookbackDays,
+		debugEmail:   opts.DebugEmail,
 	}, nil
 }
 
@@ -104,6 +107,16 @@ func (m *Monitor) Run(ctx context.Context) error {
 
 	if m.verbose {
 		log.Printf("Starting monitoring run with %d enabled queries", len(m.config.GetEnabledQueries()))
+	}
+
+	// Send debug email if requested (before processing queries)
+	if m.debugEmail && !m.dryRun {
+		if err := m.sendDebugEmail(ctx); err != nil {
+			log.Printf("Debug email failed: %v", err)
+			report.Errors = append(report.Errors, fmt.Sprintf("debug email: %s", err.Error()))
+		} else {
+			log.Printf("Debug email sent successfully")
+		}
 	}
 
 	// Execute all queries concurrently
@@ -541,6 +554,39 @@ func (m *Monitor) sendUpdatedOpportunityNotifications(ctx context.Context, query
 		WithUpdatedOpportunities(opportunities).
 		WithSubject(subject).
 		WithMetadata("query_type", "updated").
+		Build()
+
+	return m.notifyMgr.SendNotification(ctx, notification)
+}
+
+// sendDebugEmail sends a test email to verify email configuration
+func (m *Monitor) sendDebugEmail(ctx context.Context) error {
+	if m.verbose {
+		log.Printf("Sending debug email to test email configuration")
+	}
+
+	// Create a simple test opportunity for demonstration
+	testOpp := samgov.Opportunity{
+		NoticeID:         "DEBUG-TEST-" + time.Now().Format("20060102-150405"),
+		Title:            "DEBUG: Email Configuration Test",
+		Description:      "This is a test email sent by SAM.gov Monitor to verify email configuration is working correctly.",
+		PostedDate:       time.Now().Format("2006-01-02"),
+		ResponseDeadline: nil,
+		UILink:          "https://sam.gov",
+		Type:            "Test Notice",
+		FullParentPath:  "SAM.gov Monitor Debug System",
+		NAICSCode:       "541511",
+		TypeOfSetAside:  "Debug Test",
+	}
+
+	subject := fmt.Sprintf("🧪 SAM.gov Monitor Debug Email - %s", time.Now().Format("2006-01-02 15:04:05"))
+
+	// Build debug notification
+	notification := notify.NewNotificationBuilder().
+		WithQuery("DEBUG EMAIL TEST", notify.PriorityLow).
+		WithOpportunities([]samgov.Opportunity{testOpp}).
+		WithSubject(subject).
+		WithMetadata("query_type", "debug").
 		Build()
 
 	return m.notifyMgr.SendNotification(ctx, notification)

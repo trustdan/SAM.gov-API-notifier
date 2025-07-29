@@ -33,6 +33,7 @@ func main() {
 		lookback    = flag.Int("lookback", DefaultLookback, "Days to look back for opportunities")
 		showVersion = flag.Bool("version", false, "Show version information")
 		reportMode  = flag.Bool("report", false, "Generate status report from state file")
+		debugEmail  = flag.Bool("debug-email", false, "Send test email every run")
 	)
 	flag.Parse()
 
@@ -94,6 +95,7 @@ func main() {
 		Verbose:      *verbose,
 		DryRun:       *dryRun,
 		LookbackDays: *lookback,
+		DebugEmail:   *debugEmail,
 	})
 	if err != nil {
 		log.Fatalf("Failed to create monitor: %v", err)
@@ -185,6 +187,8 @@ Options:
         Show version information
   -report
         Generate status report from state file
+  -debug-email
+        Send test email every run
   -help Show this help
 
 Environment Variables:

@@ -82,6 +82,7 @@ jobs:
         ./bin/monitor \
           -config config/queries.yaml \
           -state state/monitor.json \
+          -debug-email \
           ${{ github.event.inputs.dry_run == 'true' && '-dry-run' || '' }} \
           ${{ github.event.inputs.verbose == 'true' && '-v' || '' }} \
           ${{ github.event.inputs.lookback_days && format('-lookback {0}', github.event.inputs.lookback_days) || '' }}
