@@ -237,7 +237,7 @@ func (en *EmailNotifier) loadTemplates() {
 		"title": strings.Title,
 	}
 	
-	en.templates = template.Must(template.New("email").Funcs(funcMap).Parse(opportunityTemplate))
+	en.templates = template.Must(template.New("opportunity").Funcs(funcMap).Parse(opportunityTemplate))
 	template.Must(en.templates.New("opportunity-updated").Funcs(funcMap).Parse(opportunityUpdatedTemplate))
 }
 
