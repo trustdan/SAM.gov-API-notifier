@@ -12,7 +12,7 @@ import (
 
 const (
 	DefaultBaseURL = "https://api.sam.gov/opportunities/v2/search"
-	DefaultTimeout = 30 * time.Second
+	DefaultTimeout = 15 * time.Second
 	UserAgent      = "SAM.gov-Monitor/1.0"
 )
 

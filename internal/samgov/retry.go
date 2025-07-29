@@ -21,10 +21,10 @@ type RetryConfig struct {
 // DefaultRetryConfig returns sensible defaults for SAM.gov API
 func DefaultRetryConfig() RetryConfig {
 	return RetryConfig{
-		MaxRetries:    3,
-		InitialDelay:  1 * time.Second,
-		MaxDelay:      30 * time.Second,
-		BackoffFactor: 2.0,
+		MaxRetries:    2, // Reduced from 3 to limit total time
+		InitialDelay:  2 * time.Second, // Increased for rate limits
+		MaxDelay:      60 * time.Second, // Increased for 429 responses
+		BackoffFactor: 3.0, // More aggressive backoff for rate limits
 		Jitter:        true,
 		RetryableErrors: []int{429, 500, 502, 503, 504}, // Rate limit and server errors
 	}
@@ -91,8 +91,16 @@ func (rc *RetryClient) SearchWithRetry(ctx context.Context, params map[string]st
 			break
 		}
 
-		// Calculate delay for next attempt
+		// Calculate delay for next attempt, with special handling for rate limits
 		delay := rc.calculateDelay(attempt)
+		
+		// Use longer delay for 429 rate limit errors
+		if apiErr, ok := lastErr.(*APIError); ok && apiErr.StatusCode == 429 {
+			delay = time.Duration(float64(delay) * 2.0) // Double the delay for rate limits
+			if delay > 120*time.Second { // Cap at 2 minutes
+				delay = 120 * time.Second
+			}
+		}
 		
 		if rc.verbose {
 			log.Printf("Search failed (attempt %d/%d), retrying in %v: %v", 

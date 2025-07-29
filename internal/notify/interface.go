@@ -2,6 +2,7 @@ package notify
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/yourusername/sam-gov-monitor/internal/samgov"
@@ -126,6 +127,11 @@ func NewNotificationManager(config NotificationConfig, verbose bool) *Notificati
 	if config.GitHub.Enabled {
 		githubNotifier := NewGitHubNotifier(config.GitHub, verbose)
 		manager.notifiers = append(manager.notifiers, githubNotifier)
+		if verbose {
+			log.Printf("Added GitHub notifier to notification manager")
+		}
+	} else if verbose {
+		log.Printf("GitHub notifier DISABLED - not added to notification manager")
 	}
 
 	return manager

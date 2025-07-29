@@ -40,6 +40,11 @@ func (gn *GitHubNotifier) Send(ctx context.Context, notification Notification) e
 	if !gn.config.Enabled {
 		return nil
 	}
+	
+	// Verify configuration is complete
+	if gn.config.Token == "" || gn.config.Owner == "" || gn.config.Repository == "" {
+		return fmt.Errorf("GitHub notifier enabled but missing required configuration (token/owner/repository)")
+	}
 
 	if gn.verbose {
 		log.Printf("Creating GitHub issues for notification: %s", notification.Subject)

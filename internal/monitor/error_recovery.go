@@ -109,7 +109,7 @@ func (pfh *PartialFailureHandler) executeQueriesParallel(
 	results []QueryResult,
 ) {
 	var wg sync.WaitGroup
-	semaphore := make(chan struct{}, 3) // Limit concurrent queries to avoid rate limits
+	semaphore := make(chan struct{}, 2) // Limit concurrent queries to avoid rate limits
 
 	for i, query := range queries {
 		if !query.Enabled {

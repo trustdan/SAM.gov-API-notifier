@@ -201,11 +201,11 @@ func (m *Monitor) runQueries(ctx context.Context) ([]samgov.QueryResult, error) 
 	results := make([]samgov.QueryResult, len(enabledQueries))
 	
 	// Rate limiting: 1 request per 2 seconds to avoid 429 errors
-	rateLimiter := time.NewTicker(2 * time.Second)
+	rateLimiter := time.NewTicker(5 * time.Second)
 	defer rateLimiter.Stop()
 	
 	// Use buffered channel to limit concurrent requests
-	semaphore := make(chan struct{}, 3) // Max 3 concurrent requests
+	semaphore := make(chan struct{}, 2) // Max 2 concurrent requests to reduce rate limiting
 	var wg sync.WaitGroup
 	
 	for i, query := range enabledQueries {
@@ -494,9 +494,16 @@ func buildNotificationConfig() notify.NotificationConfig {
 	githubToken := os.Getenv("GITHUB_TOKEN")
 	githubOwner := os.Getenv("GITHUB_OWNER")
 	githubRepo := os.Getenv("GITHUB_REPOSITORY")
+	githubEnabled := githubToken != "" && githubOwner != "" && githubRepo != ""
+	
+	if githubEnabled {
+		log.Printf("GitHub notifications ENABLED: owner=%s, repo=%s", githubOwner, githubRepo)
+	} else {
+		log.Printf("GitHub notifications DISABLED: missing environment variables")
+	}
 	
 	config.GitHub = notify.GitHubConfig{
-		Enabled:     githubToken != "" && githubOwner != "" && githubRepo != "",
+		Enabled:     githubEnabled,
 		Token:       githubToken,
 		Owner:       githubOwner,
 		Repository:  githubRepo,
