@@ -55,15 +55,19 @@ type Metrics struct {
 
 // QueryMetrics tracks metrics for individual queries
 type QueryMetrics struct {
-	Name              string        `json:"name"`
-	ExecutionCount    int           `json:"execution_count"`
-	SuccessCount      int           `json:"success_count"`
-	FailureCount      int           `json:"failure_count"`
-	AverageDuration   time.Duration `json:"average_duration"`
-	LastExecuted      time.Time     `json:"last_executed"`
-	TotalOpportunities int          `json:"total_opportunities"`
-	LastError         string        `json:"last_error"`
-	Durations         []time.Duration `json:"durations"`
+	Name                     string        `json:"name"`
+	ExecutionCount           int           `json:"execution_count"`
+	SuccessCount             int           `json:"success_count"`
+	FailureCount             int           `json:"failure_count"`
+	AverageDuration          time.Duration `json:"average_duration"`
+	LastExecuted             time.Time     `json:"last_executed"`
+	TotalOpportunities       int           `json:"total_opportunities"`
+	LastError                string        `json:"last_error"`
+	Durations                []time.Duration `json:"durations"`
+	AverageTime              time.Duration `json:"average_time"`
+	LastOpportunityCount     int           `json:"last_opportunity_count"`
+	TotalOpportunitiesFound  int           `json:"total_opportunities_found"`
+	ErrorCount               int           `json:"error_count"`
 }
 
 // SlowQuery represents a query that exceeded performance thresholds

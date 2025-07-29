@@ -22,16 +22,6 @@ type State struct {
 	modified      bool
 }
 
-// QueryMetrics tracks performance metrics for queries
-type QueryMetrics struct {
-	LastExecuted     time.Time     `json:"last_executed"`
-	ExecutionCount   int           `json:"execution_count"`
-	AverageTime      time.Duration `json:"average_time"`
-	LastOpportunityCount int       `json:"last_opportunity_count"`
-	TotalOpportunitiesFound int    `json:"total_opportunities_found"`
-	ErrorCount       int           `json:"error_count"`
-	LastError        string        `json:"last_error,omitempty"`
-}
 
 // LoadState loads the state from a file, or creates a new empty state
 func LoadState(filePath string) (*State, error) {

@@ -70,8 +70,6 @@ func (af *AdvancedFilter) extractAdvancedQuery(query config.Query) (*AdvancedQue
 		return nil, nil
 	}
 
-	advanced := &AdvancedQuery{}
-
 	switch v := advancedRaw.(type) {
 	case map[string]interface{}:
 		return af.parseAdvancedMap(v)
@@ -195,7 +193,7 @@ func (af *AdvancedFilter) matchesAdvancedCriteria(opp samgov.Opportunity, advanc
 func (af *AdvancedFilter) containsAnyKeyword(opp samgov.Opportunity, keywords []string) bool {
 	// Combine searchable text fields
 	searchText := strings.ToLower(fmt.Sprintf("%s %s %s %s", 
-		opp.Title, opp.Description, opp.Department, opp.Type))
+		opp.Title, opp.Description, opp.FullParentPath, opp.Type))
 
 	for _, keyword := range keywords {
 		if strings.Contains(searchText, strings.ToLower(keyword)) {

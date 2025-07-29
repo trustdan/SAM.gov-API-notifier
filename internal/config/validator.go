@@ -514,14 +514,14 @@ func (cv *ConfigValidator) extractStringArray(value interface{}) []string {
 }
 
 func (cv *ConfigValidator) validateStringArray(value interface{}, fieldPrefix, description string, result *ValidationResult) {
-	strings := cv.extractStringArray(value)
-	if len(strings) == 0 {
+	stringArray := cv.extractStringArray(value)
+	if len(stringArray) == 0 {
 		cv.addWarning(result, fieldPrefix, fmt.Sprintf("%v", value), 
 			fmt.Sprintf("%s list is empty", description))
 		return
 	}
 
-	for i, str := range strings {
+	for i, str := range stringArray {
 		if strings.TrimSpace(str) == "" {
 			cv.addWarning(result, fmt.Sprintf("%s[%d]", fieldPrefix, i), str, 
 				fmt.Sprintf("Empty %s entry", strings.ToLower(description)))

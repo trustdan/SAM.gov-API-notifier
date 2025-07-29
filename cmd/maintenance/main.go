@@ -11,9 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/username/sam-gov-monitor/internal/config"
-	"github.com/username/sam-gov-monitor/internal/monitor"
-	"github.com/username/sam-gov-monitor/internal/samgov"
+	"github.com/yourusername/sam-gov-monitor/internal/config"
+	"github.com/yourusername/sam-gov-monitor/internal/samgov"
 )
 
 func main() {
@@ -325,17 +324,15 @@ func healthCheck(ctx context.Context, configPath string, verbose bool, logger *l
 
 	// Test SAM.gov API connectivity
 	client := samgov.NewClient(os.Getenv("SAM_API_KEY"))
-	if _, err := client.SearchOpportunities(ctx, samgov.SearchParams{
-		Limit: 1,
-		APIKey: os.Getenv("SAM_API_KEY"),
-	}); err != nil {
+	params := map[string]string{"limit": "1"}
+	if _, err := client.Search(ctx, params); err != nil {
 		results = append(results, fmt.Sprintf("❌ SAM.gov API: %v", err))
 	} else {
 		results = append(results, "✅ SAM.gov API: Connected")
 	}
 
 	// Test configuration loading
-	if _, err := config.LoadConfig(configPath); err != nil {
+	if _, err := config.Load(configPath); err != nil {
 		results = append(results, fmt.Sprintf("❌ Configuration: %v", err))
 	} else {
 		results = append(results, "✅ Configuration: Valid")
@@ -441,7 +438,7 @@ func getStateInfo() (StateInfo, error) {
 func getConfigInfo(configPath string) (ConfigInfo, error) {
 	info := ConfigInfo{}
 	
-	cfg, err := config.LoadConfig(configPath)
+	cfg, err := config.Load(configPath)
 	if err != nil {
 		return info, err
 	}
