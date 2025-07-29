@@ -52,61 +52,86 @@ func NewClientWithOptions(apiKey, baseURL string, timeout time.Duration) *Client
 	}
 }
 
-// Search executes a search query against the SAM.gov API
+// Search executes a search query against the SAM.gov API with retry logic
 func (c *Client) Search(ctx context.Context, params map[string]string) (*SearchResponse, error) {
 	if c.apiKey == "" {
 		return nil, fmt.Errorf("API key is required")
 	}
 
-	// Build URL with parameters
-	u, err := url.Parse(c.baseURL)
-	if err != nil {
-		return nil, fmt.Errorf("parsing base URL: %w", err)
-	}
-
-	q := u.Query()
-	q.Set("api_key", c.apiKey)
-
-	// Add search parameters
-	for key, value := range params {
-		if value != "" {
-			q.Set(key, value)
+	// Retry configuration
+	maxRetries := 3
+	baseDelay := 1 * time.Second
+	
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		// Build URL with parameters
+		u, err := url.Parse(c.baseURL)
+		if err != nil {
+			return nil, fmt.Errorf("parsing base URL: %w", err)
 		}
-	}
-	u.RawQuery = q.Encode()
 
-	// Create request
-	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
-	if err != nil {
-		return nil, fmt.Errorf("creating request: %w", err)
-	}
+		q := u.Query()
+		q.Set("api_key", c.apiKey)
 
-	req.Header.Set("User-Agent", UserAgent)
-	req.Header.Set("Accept", "application/json")
-
-	// Execute request
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("executing request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Check status code
-	if resp.StatusCode != http.StatusOK {
-		return nil, &APIError{
-			StatusCode: resp.StatusCode,
-			Message:    fmt.Sprintf("API returned status %d", resp.StatusCode),
-			Details:    resp.Status,
+		// Add search parameters
+		for key, value := range params {
+			if value != "" {
+				q.Set(key, value)
+			}
 		}
-	}
+		u.RawQuery = q.Encode()
 
-	// Parse response
-	var result SearchResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("decoding response: %w", err)
-	}
+		// Create request
+		req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+		if err != nil {
+			return nil, fmt.Errorf("creating request: %w", err)
+		}
 
-	return &result, nil
+		req.Header.Set("User-Agent", UserAgent)
+		req.Header.Set("Accept", "application/json")
+
+		// Execute request
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			if attempt < maxRetries && IsRetryableError(err) {
+				delay := time.Duration(1<<attempt) * baseDelay
+				time.Sleep(delay)
+				continue
+			}
+			return nil, fmt.Errorf("executing request: %w", err)
+		}
+
+		// Check status code
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			
+			apiErr := &APIError{
+				StatusCode: resp.StatusCode,
+				Message:    fmt.Sprintf("API returned status %d", resp.StatusCode),
+				Details:    resp.Status,
+			}
+			
+			// Retry on rate limit errors with exponential backoff
+			if resp.StatusCode == 429 && attempt < maxRetries {
+				delay := time.Duration(1<<attempt) * baseDelay * 2 // Longer delay for rate limits
+				time.Sleep(delay)
+				continue
+			}
+			
+			return nil, apiErr
+		}
+
+		// Parse response
+		var result SearchResponse
+		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			resp.Body.Close()
+			return nil, fmt.Errorf("decoding response: %w", err)
+		}
+		resp.Body.Close()
+
+		return &result, nil
+	}
+	
+	return nil, fmt.Errorf("max retries exceeded")
 }
 
 // SearchWithDefaults executes a search with common default parameters

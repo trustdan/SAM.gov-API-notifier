@@ -1,0 +1,27 @@
+queries:
+  - name: "Test Query 1 - DARPA AI"
+    enabled: true
+    parameters:
+      organizationName: ["DEFENSE ADVANCED RESEARCH PROJECTS AGENCY"]
+      ptype: ["s"]
+    notification:
+      priority: medium
+      recipients: []
+      channels: ["email"]
+    advanced:
+      include: ["AI", "artificial intelligence"]
+      exclude: ["canceled", "cancelled"]
+      maxDaysOld: 30
+
+  - name: "Test Query 2 - General AI"
+    enabled: true
+    parameters:
+      title: "artificial intelligence"
+      ptype: ["s"]
+    notification:
+      priority: low
+      recipients: []
+      channels: ["email"]
+    advanced:
+      exclude: ["canceled", "cancelled"]
+      maxDaysOld: 7

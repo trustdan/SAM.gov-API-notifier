@@ -195,19 +195,31 @@ func (m *Monitor) Run(ctx context.Context) error {
 	return nil
 }
 
-// runQueries executes all enabled queries concurrently
+// runQueries executes all enabled queries with rate limiting
 func (m *Monitor) runQueries(ctx context.Context) ([]samgov.QueryResult, error) {
 	enabledQueries := m.config.GetEnabledQueries()
 	results := make([]samgov.QueryResult, len(enabledQueries))
 	
-	// Use WaitGroup for concurrent execution
+	// Rate limiting: 1 request per 2 seconds to avoid 429 errors
+	rateLimiter := time.NewTicker(2 * time.Second)
+	defer rateLimiter.Stop()
+	
+	// Use buffered channel to limit concurrent requests
+	semaphore := make(chan struct{}, 3) // Max 3 concurrent requests
 	var wg sync.WaitGroup
 	
 	for i, query := range enabledQueries {
 		wg.Add(1)
 		
+		// Wait for rate limiter
+		<-rateLimiter.C
+		
 		go func(index int, q config.Query) {
 			defer wg.Done()
+			
+			// Acquire semaphore
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
 			
 			if m.verbose {
 				log.Printf("Starting query: %s", q.Name)
@@ -478,12 +490,16 @@ func buildNotificationConfig() notify.NotificationConfig {
 		IconEmoji:  os.Getenv("SLACK_ICON_EMOJI"),
 	}
 
-	// GitHub configuration
+	// GitHub configuration - only enable if all required fields are set
+	githubToken := os.Getenv("GITHUB_TOKEN")
+	githubOwner := os.Getenv("GITHUB_OWNER")
+	githubRepo := os.Getenv("GITHUB_REPOSITORY")
+	
 	config.GitHub = notify.GitHubConfig{
-		Enabled:     os.Getenv("GITHUB_TOKEN") != "",
-		Token:       os.Getenv("GITHUB_TOKEN"),
-		Owner:       getEnvWithDefault("GITHUB_OWNER", "yourusername"),
-		Repository:  getEnvWithDefault("GITHUB_REPOSITORY", "sam-gov-monitor"),
+		Enabled:     githubToken != "" && githubOwner != "" && githubRepo != "",
+		Token:       githubToken,
+		Owner:       githubOwner,
+		Repository:  githubRepo,
 		Labels:      getEnvStringSlice("GITHUB_LABELS"),
 		AssignUsers: getEnvStringSlice("GITHUB_ASSIGN_USERS"),
 	}

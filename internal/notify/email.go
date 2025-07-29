@@ -141,10 +141,12 @@ func (en *EmailNotifier) sendSMTP(recipients []string, message []byte) error {
 	var client *smtp.Client
 	var err error
 
-	if en.config.UseTLS {
-		// TLS connection
+	// For port 465, use implicit TLS; for port 587/25, use STARTTLS
+	if en.config.SMTPPort == 465 && en.config.UseTLS {
+		// Implicit TLS connection (SMTPS)
 		tlsConfig := &tls.Config{
-			ServerName: en.config.SMTPHost,
+			ServerName:         en.config.SMTPHost,
+			InsecureSkipVerify: false,
 		}
 		
 		conn, err := tls.Dial("tcp", addr, tlsConfig)
@@ -158,18 +160,26 @@ func (en *EmailNotifier) sendSMTP(recipients []string, message []byte) error {
 			return fmt.Errorf("SMTP client: %w", err)
 		}
 	} else {
-		// Plain connection with STARTTLS
+		// Plain connection with optional STARTTLS
 		client, err = smtp.Dial(addr)
 		if err != nil {
 			return fmt.Errorf("SMTP dial: %w", err)
 		}
 		
-		// Use STARTTLS if available
-		if ok, _ := client.Extension("STARTTLS"); ok {
-			config := &tls.Config{ServerName: en.config.SMTPHost}
-			if err = client.StartTLS(config); err != nil {
+		// Use STARTTLS if requested and available
+		if en.config.UseTLS {
+			if ok, _ := client.Extension("STARTTLS"); ok {
+				config := &tls.Config{
+					ServerName:         en.config.SMTPHost,
+					InsecureSkipVerify: false,
+				}
+				if err = client.StartTLS(config); err != nil {
+					client.Close()
+					return fmt.Errorf("STARTTLS: %w", err)
+				}
+			} else {
 				client.Close()
-				return fmt.Errorf("STARTTLS: %w", err)
+				return fmt.Errorf("STARTTLS requested but not supported by server")
 			}
 		}
 	}
