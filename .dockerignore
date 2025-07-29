@@ -1,0 +1,50 @@
+# Git files
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+overview.md
+roadmap.md
+rules.md
+Skylark-*
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test files
+test/
+*_test.go
+coverage.out
+*.log
+
+# Build artifacts
+bin/
+*.exe
+
+# State and data files
+state/*.json
+logs/
+
+# Environment files
+.env
+.env.*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp

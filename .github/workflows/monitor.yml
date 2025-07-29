@@ -1,0 +1,203 @@
+name: SAM.gov Opportunity Monitor
+
+on:
+  schedule:
+    # Run twice daily: 8 AM and 6 PM ET (12:00 and 22:00 UTC)
+    - cron: '0 12 * * *'  # 8 AM ET
+    - cron: '0 22 * * *'  # 6 PM ET
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run without sending notifications'
+        required: false
+        type: boolean
+        default: false
+      verbose:
+        description: 'Enable verbose logging'
+        required: false
+        type: boolean
+        default: false
+      lookback_days:
+        description: 'Days to look back for opportunities'
+        required: false
+        type: number
+        default: 3
+
+env:
+  GO_VERSION: '1.21'
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+          
+    - name: Download dependencies
+      run: go mod download
+      
+    - name: Build monitor
+      run: make build
+      
+    - name: Validate environment
+      run: ./bin/monitor -validate-env
+      env:
+        SAM_API_KEY: ${{ secrets.SAM_API_KEY }}
+        SMTP_HOST: ${{ secrets.SMTP_HOST }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Create state directory
+      run: mkdir -p state
+      
+    - name: Download previous state
+      uses: actions/download-artifact@v3
+      with:
+        name: monitor-state
+        path: state/
+      continue-on-error: true
+      
+    - name: Run monitor
+      run: |
+        ./bin/monitor \
+          -config config/queries.yaml \
+          -state state/monitor.json \
+          ${{ github.event.inputs.dry_run == 'true' && '-dry-run' || '' }} \
+          ${{ github.event.inputs.verbose == 'true' && '-v' || '' }} \
+          ${{ github.event.inputs.lookback_days && format('-lookback {0}', github.event.inputs.lookback_days) || '' }}
+      env:
+        SAM_API_KEY: ${{ secrets.SAM_API_KEY }}
+        SMTP_HOST: ${{ secrets.SMTP_HOST }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+        SLACK_USERNAME: ${{ secrets.SLACK_USERNAME }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_OWNER: ${{ github.repository_owner }}
+        GITHUB_REPOSITORY: ${{ github.event.repository.name }}
+        
+    - name: Upload state
+      uses: actions/upload-artifact@v3
+      with:
+        name: monitor-state
+        path: state/
+        retention-days: 90
+      if: always()
+      
+    - name: Upload logs on failure
+      uses: actions/upload-artifact@v3
+      with:
+        name: monitor-logs-${{ github.run_number }}
+        path: |
+          *.log
+          logs/
+        retention-days: 30
+      if: failure()
+
+  # Test job that runs on pull requests
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        
+    - name: Download dependencies
+      run: go mod download
+      
+    - name: Run tests
+      run: go test -v ./...
+      
+    - name: Build binary
+      run: make build
+      
+    - name: Test configuration validation
+      run: ./bin/monitor -config config/queries.yaml -validate-env || true
+      
+    - name: Run dry-run test
+      run: ./bin/monitor -config config/queries.yaml -dry-run -v -lookback 1
+      env:
+        SAM_API_KEY: ${{ secrets.SAM_API_KEY }}
+      if: env.SAM_API_KEY != ''
+
+  # Weekly maintenance job
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * 0'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        
+    - name: Build monitor
+      run: make build
+      
+    - name: Download state
+      uses: actions/download-artifact@v3
+      with:
+        name: monitor-state
+        path: state/
+      continue-on-error: true
+      
+    - name: Generate weekly report
+      run: |
+        # Add state analytics here when implemented
+        echo "Weekly maintenance completed on $(date)"
+        
+    - name: Clean old artifacts
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const artifacts = await github.rest.actions.listArtifactsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            per_page: 100
+          });
+          
+          const oldArtifacts = artifacts.data.artifacts.filter(artifact => {
+            const age = Date.now() - new Date(artifact.created_at).getTime();
+            return age > 30 * 24 * 60 * 60 * 1000; // 30 days
+          });
+          
+          for (const artifact of oldArtifacts) {
+            await github.rest.actions.deleteArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: artifact.id
+            });
+          }

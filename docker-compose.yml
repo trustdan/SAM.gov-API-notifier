@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  sam-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sam-gov-monitor:latest
+    container_name: sam-monitor
+    environment:
+      - SAM_API_KEY=${SAM_API_KEY}
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - EMAIL_TO=${EMAIL_TO}
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
+      - SLACK_CHANNEL=${SLACK_CHANNEL}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      # Mount config for customization
+      - ./config:/app/config:ro
+      # Persistent state directory
+      - ./state:/app/state
+      # Optional: custom queries
+      - ./custom-queries.yaml:/app/config/queries.yaml:ro
+    command: ["-config", "config/queries.yaml", "-state", "state/monitor.json"]
+    restart: unless-stopped
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "./monitor", "-validate-env"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Development service with dry-run enabled
+  sam-monitor-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sam-gov-monitor:latest
+    container_name: sam-monitor-dev
+    environment:
+      - SAM_API_KEY=${SAM_API_KEY}
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - EMAIL_TO=${EMAIL_TO}
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
+    volumes:
+      - ./config:/app/config:ro
+      - ./state:/app/state
+    command: ["-config", "config/queries.yaml", "-state", "state/monitor.json", "-dry-run", "-v"]
+    profiles:
+      - dev
+
+volumes:
+  state:
+    driver: local

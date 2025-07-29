@@ -1,0 +1,162 @@
+queries:
+  - name: "DARPA AI Exploration (AIE) - Brain-Inspired AI"
+    enabled: true
+    parameters:
+      title: "AIE"
+      organizationName: "DEFENSE ADVANCED RESEARCH PROJECTS AGENCY"
+      ptype: ["s", "p", "o"]
+    notification:
+      priority: high
+      recipients: ["aie-opportunities@skylarklabs.ai"]
+      channels: ["email", "slack", "github"]
+    advanced:
+      include: ["AIE", "Artificial Intelligence Exploration", "brain-inspired", "neuromorphic", "adaptive AI", "on-device learning", "edge AI", "continuous learning"]
+      exclude: ["canceled", "cancelled", "withdrawn"]
+      maxDaysOld: 14
+
+  - name: "DARPA Lifelong Learning & Adaptive AI"
+    enabled: true
+    parameters:
+      title: "lifelong learning"
+      organizationName: "DARPA"
+      ptype: ["s", "p", "o"]
+    notification:
+      priority: high
+      recipients: ["ai-research@skylarklabs.ai"]
+      channels: ["email", "slack"]
+    advanced:
+      include: ["lifelong learning", "adaptive", "catastrophic forgetting", "transfer learning", "meta-learning", "few-shot learning", "self-supervised"]
+      exclude: ["canceled", "cancelled", "withdrawn"]
+      maxDaysOld: 21
+
+  - name: "Defense & Border Security AI Systems"
+    enabled: true
+    parameters:
+      organizationName: ["DEPARTMENT OF DEFENSE", "DEPT OF HOMELAND SECURITY", "U.S. CUSTOMS AND BORDER PROTECTION"]
+      ptype: ["s", "p", "o"]
+    notification:
+      priority: high
+      recipients: ["defense@skylarklabs.ai"]
+      channels: ["email", "slack"]
+    advanced:
+      include: ["border security", "surveillance", "threat detection", "anomaly detection", "perimeter security", "autonomous surveillance", "real-time monitoring"]
+      naicsCodes: ["541715", "541511", "541512"]  # R&D and Computer Systems
+      exclude: ["training only", "simulation only"]
+      maxDaysOld: 30
+
+  - name: "Drone Detection & Counter-UAS Systems"
+    enabled: true
+    parameters:
+      title: ["drone", "UAS", "UAV", "counter-drone"]
+      organizationName: ["DEPARTMENT OF DEFENSE", "DEPT OF HOMELAND SECURITY"]
+      ptype: ["s", "p", "o"]
+    notification:
+      priority: high
+      recipients: ["drone-detection@skylarklabs.ai"]
+      channels: ["email", "slack", "github"]
+    advanced:
+      include: ["drone detection", "counter-UAS", "counter-drone", "unmanned aerial", "aerial surveillance", "beyond visual line of sight", "BVLOS", "aerial threat"]
+      naicsCodes: ["541715", "334511"]  # R&D and Electronic Equipment
+      exclude: ["training", "educational"]
+      maxDaysOld: 21
+
+  - name: "Public Safety & Urban Security AI"
+    enabled: true
+    parameters:
+      title: ["public safety", "urban security", "smart city"]
+      organizationName: ["DEPT OF HOMELAND SECURITY", "FEMA", "DEPT OF JUSTICE"]
+    notification:
+      priority: medium
+      recipients: ["public-safety@skylarklabs.ai"]
+      channels: ["email"]
+    advanced:
+      include: ["public safety", "urban security", "smart city", "emergency response", "situational awareness", "crowd monitoring", "traffic safety", "campus security"]
+      naicsCodes: ["541715", "541511", "561621"]  # R&D, IT Services, Security
+      exclude: ["training only", "educational"]
+      maxDaysOld: 30
+
+  - name: "SBIR/STTR AI & Robotics Research"
+    enabled: true
+    parameters:
+      title: ["SBIR", "STTR"]
+      organizationName: ["DEPARTMENT OF DEFENSE", "NATIONAL SCIENCE FOUNDATION", "DEPT OF ENERGY"]
+    notification:
+      priority: high
+      recipients: ["sbir@skylarklabs.ai"]
+      channels: ["email", "slack"]
+    advanced:
+      include: ["SBIR", "STTR", "artificial intelligence", "robotics", "autonomous systems", "machine learning", "computer vision", "sensor fusion", "edge computing"]
+      naicsCodes: ["541715", "541511"]  # R&D Services
+      exclude: ["Phase III only", "follow-on only"]
+      maxDaysOld: 45
+
+  - name: "Transportation & Infrastructure AI"
+    enabled: true
+    parameters:
+      title: ["transportation", "infrastructure", "smart transportation"]
+      organizationName: ["DEPT OF TRANSPORTATION", "FEDERAL HIGHWAY ADMINISTRATION", "FEDERAL AVIATION ADMINISTRATION"]
+    notification:
+      priority: medium
+      recipients: ["transportation@skylarklabs.ai"]
+      channels: ["email"]
+      digest: true
+    advanced:
+      include: ["transportation safety", "road maintenance", "infrastructure monitoring", "autonomous vehicles", "traffic management", "runway safety", "foreign object debris", "FOD"]
+      naicsCodes: ["541715", "541511", "541512"]
+      maxDaysOld: 30
+
+  - name: "Intelligence & Surveillance Technologies"
+    enabled: true
+    parameters:
+      title: ["intelligence", "surveillance", "reconnaissance"]
+      organizationName: ["DEPT OF DEFENSE", "DEFENSE INTELLIGENCE AGENCY", "NATIONAL GEOSPATIAL-INTELLIGENCE AGENCY"]
+    notification:
+      priority: high
+      recipients: ["intelligence@skylarklabs.ai"]
+      channels: ["email", "slack"]
+    advanced:
+      include: ["intelligence", "surveillance", "reconnaissance", "ISR", "threat analysis", "pattern recognition", "multi-sensor fusion", "real-time analytics", "geospatial intelligence"]
+      naicsCodes: ["541715", "541511", "541512"]
+      exclude: ["training only", "educational"]
+      maxDaysOld: 21
+
+  - name: "Sensor Fusion & Multi-Modal AI"
+    enabled: true
+    parameters:
+      title: ["sensor fusion", "multi-sensor", "multi-modal"]
+    notification:
+      priority: medium
+      recipients: ["sensors@skylarklabs.ai"]
+      channels: ["email"]
+    advanced:
+      include: ["sensor fusion", "multi-sensor", "multi-modal", "computer vision", "audio processing", "radar", "lidar", "thermal imaging", "data fusion"]
+      naicsCodes: ["541715", "334511", "541511"]
+      maxDaysOld: 30
+
+  - name: "Edge Computing & On-Device AI"
+    enabled: true
+    parameters:
+      title: ["edge computing", "on-device", "embedded AI"]
+    notification:
+      priority: medium
+      recipients: ["edge-ai@skylarklabs.ai"]
+      channels: ["email"]
+      digest: true
+    advanced:
+      include: ["edge computing", "on-device", "embedded AI", "low-power AI", "real-time processing", "autonomous systems", "distributed intelligence"]
+      naicsCodes: ["541715", "334413", "541511"]
+      maxDaysOld: 30
+
+  - name: "Computer Vision & Image Analysis - All Applications"
+    enabled: true
+    parameters:
+      title: ["image processing", "computer vision", "image analysis", "counting", "identification", "object detection", "pattern recognition"]
+    notification:
+      priority: medium
+      recipients: ["computer-vision@skylarklabs.ai"]
+      channels: ["email"]
+    advanced:
+      include: ["image processing", "computer vision", "image analysis", "object detection", "object counting", "species identification", "wildlife monitoring", "environmental monitoring", "scientific imaging", "automated counting", "pattern recognition", "machine learning", "AI models", "VIAME", "annotation", "visual inspection", "quality control", "defect detection", "medical imaging", "satellite imagery", "aerial imagery"]
+      naicsCodes: ["541511", "541715", "541512"]  # Custom Programming, R&D, Computer Systems
+      exclude: ["training only", "educational", "manual processing", "graphic design", "web design"]
+      maxDaysOld: 45
