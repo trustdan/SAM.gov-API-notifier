@@ -2,8 +2,8 @@ queries:
   - name: "DARPA AI Exploration (AIE) - Brain-Inspired AI"
     enabled: true
     parameters:
-      title: "AIE"
-      organizationName: "DEFENSE ADVANCED RESEARCH PROJECTS AGENCY"
+      # Remove restrictive title filter, rely on include terms instead
+      organizationName: ["DEFENSE ADVANCED RESEARCH PROJECTS AGENCY", "DARPA"]
       ptype: ["s", "p", "o"]
     notification:
       priority: high
@@ -12,13 +12,13 @@ queries:
     advanced:
       include: ["AIE", "Artificial Intelligence Exploration", "brain-inspired", "neuromorphic", "adaptive AI", "on-device learning", "edge AI", "continuous learning"]
       exclude: ["canceled", "cancelled", "withdrawn"]
-      maxDaysOld: 14
+      maxDaysOld: 60
 
   - name: "DARPA Lifelong Learning & Adaptive AI"
     enabled: true
     parameters:
-      title: "lifelong learning"
-      organizationName: "DARPA"
+      # Remove restrictive title filter
+      organizationName: ["DEFENSE ADVANCED RESEARCH PROJECTS AGENCY", "DARPA"]
       ptype: ["s", "p", "o"]
     notification:
       priority: high
@@ -27,7 +27,7 @@ queries:
     advanced:
       include: ["lifelong learning", "adaptive", "catastrophic forgetting", "transfer learning", "meta-learning", "few-shot learning", "self-supervised"]
       exclude: ["canceled", "cancelled", "withdrawn"]
-      maxDaysOld: 21
+      maxDaysOld: 60
 
   - name: "Defense & Border Security AI Systems"
     enabled: true
@@ -42,7 +42,7 @@ queries:
       include: ["border security", "surveillance", "threat detection", "anomaly detection", "perimeter security", "autonomous surveillance", "real-time monitoring"]
       naicsCodes: ["541715", "541511", "541512"]  # R&D and Computer Systems
       exclude: ["training only", "simulation only"]
-      maxDaysOld: 30
+      maxDaysOld: 60
 
   - name: "Drone Detection & Counter-UAS Systems"
     enabled: true
@@ -58,7 +58,7 @@ queries:
       include: ["drone detection", "counter-UAS", "counter-drone", "unmanned aerial", "aerial surveillance", "beyond visual line of sight", "BVLOS", "aerial threat"]
       naicsCodes: ["541715", "334511"]  # R&D and Electronic Equipment
       exclude: ["training", "educational"]
-      maxDaysOld: 21
+      maxDaysOld: 60
 
   - name: "Public Safety & Urban Security AI"
     enabled: true
@@ -73,7 +73,7 @@ queries:
       include: ["public safety", "urban security", "smart city", "emergency response", "situational awareness", "crowd monitoring", "traffic safety", "campus security"]
       naicsCodes: ["541715", "541511", "561621"]  # R&D, IT Services, Security
       exclude: ["training only", "educational"]
-      maxDaysOld: 30
+      maxDaysOld: 60
 
   - name: "SBIR/STTR AI & Robotics Research"
     enabled: true
@@ -88,7 +88,7 @@ queries:
       include: ["SBIR", "STTR", "artificial intelligence", "robotics", "autonomous systems", "machine learning", "computer vision", "sensor fusion", "edge computing"]
       naicsCodes: ["541715", "541511"]  # R&D Services
       exclude: ["Phase III only", "follow-on only"]
-      maxDaysOld: 45
+      maxDaysOld: 60
 
   - name: "Transportation & Infrastructure AI"
     enabled: true
@@ -103,7 +103,7 @@ queries:
     advanced:
       include: ["transportation safety", "road maintenance", "infrastructure monitoring", "autonomous vehicles", "traffic management", "runway safety", "foreign object debris", "FOD"]
       naicsCodes: ["541715", "541511", "541512"]
-      maxDaysOld: 30
+      maxDaysOld: 60
 
   - name: "Intelligence & Surveillance Technologies"
     enabled: true
@@ -118,7 +118,7 @@ queries:
       include: ["intelligence", "surveillance", "reconnaissance", "ISR", "threat analysis", "pattern recognition", "multi-sensor fusion", "real-time analytics", "geospatial intelligence"]
       naicsCodes: ["541715", "541511", "541512"]
       exclude: ["training only", "educational"]
-      maxDaysOld: 21
+      maxDaysOld: 60
 
   - name: "Sensor Fusion & Multi-Modal AI"
     enabled: true
@@ -131,7 +131,7 @@ queries:
     advanced:
       include: ["sensor fusion", "multi-sensor", "multi-modal", "computer vision", "audio processing", "radar", "lidar", "thermal imaging", "data fusion"]
       naicsCodes: ["541715", "334511", "541511"]
-      maxDaysOld: 30
+      maxDaysOld: 60
 
   - name: "Edge Computing & On-Device AI"
     enabled: true
@@ -145,7 +145,23 @@ queries:
     advanced:
       include: ["edge computing", "on-device", "embedded AI", "low-power AI", "real-time processing", "autonomous systems", "distributed intelligence"]
       naicsCodes: ["541715", "334413", "541511"]
-      maxDaysOld: 30
+      maxDaysOld: 60
+
+  - name: "Broad AI/ML/Computer Vision - All Federal Agencies"
+    enabled: true
+    parameters:
+      # No title or org restrictions - cast wider net
+      ptype: ["s", "p", "o"]
+    notification:
+      priority: medium
+      recipients: ["broad-search@skylarklabs.ai"]
+      channels: ["email"]
+      digest: true
+    advanced:
+      include: ["artificial intelligence", "machine learning", "computer vision", "deep learning", "neural network", "AI", "ML", "object detection", "image analysis", "pattern recognition", "data science", "automation", "autonomous", "intelligent systems", "predictive analytics", "natural language processing", "NLP", "computer science", "algorithm", "software development", "data processing", "analytics", "surveillance", "monitoring", "detection", "classification", "identification", "recognition", "tracking", "analysis", "modeling", "simulation", "sensor", "camera", "video", "imaging", "visual", "optical"]
+      naicsCodes: ["541511", "541512", "541715", "334413", "334511", "541513", "518210", "541990"]
+      exclude: ["canceled", "cancelled", "withdrawn", "training only", "educational only", "construction", "janitorial", "catering", "food service", "landscaping", "maintenance only", "cleaning", "transportation only", "shipping", "logistics only", "printing", "office supplies", "furniture", "real estate", "leasing"]
+      maxDaysOld: 60
 
   - name: "Computer Vision & Image Analysis - All Applications"
     enabled: true
@@ -159,4 +175,4 @@ queries:
       include: ["image processing", "computer vision", "image analysis", "object detection", "object counting", "species identification", "wildlife monitoring", "environmental monitoring", "scientific imaging", "automated counting", "pattern recognition", "machine learning", "AI models", "VIAME", "annotation", "visual inspection", "quality control", "defect detection", "medical imaging", "satellite imagery", "aerial imagery"]
       naicsCodes: ["541511", "541715", "541512"]  # Custom Programming, R&D, Computer Systems
       exclude: ["training only", "educational", "manual processing", "graphic design", "web design"]
-      maxDaysOld: 45
+      maxDaysOld: 60
