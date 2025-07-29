@@ -1,178 +1,47 @@
 queries:
-  - name: "DARPA AI Exploration (AIE) - Brain-Inspired AI"
+  - name: "Skylark Labs - AI & Defense Technologies"
     enabled: true
     parameters:
-      # Remove restrictive title filter, rely on include terms instead
-      organizationName: ["DEFENSE ADVANCED RESEARCH PROJECTS AGENCY", "DARPA"]
+      # Single broad query to avoid rate limits and timeouts
       ptype: ["s", "p", "o"]
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
+      channels: ["email", "github"]
     advanced:
-      include: ["AIE", "Artificial Intelligence Exploration", "brain-inspired", "neuromorphic", "adaptive AI", "on-device learning", "edge AI", "continuous learning"]
-      exclude: ["canceled", "cancelled", "withdrawn"]
-      maxDaysOld: 60
-
-  - name: "DARPA Lifelong Learning & Adaptive AI"
-    enabled: true
-    parameters:
-      # Remove restrictive title filter
-      organizationName: ["DEFENSE ADVANCED RESEARCH PROJECTS AGENCY", "DARPA"]
-      ptype: ["s", "p", "o"]
-    notification:
-      priority: high
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["lifelong learning", "adaptive", "catastrophic forgetting", "transfer learning", "meta-learning", "few-shot learning", "self-supervised"]
-      exclude: ["canceled", "cancelled", "withdrawn"]
-      maxDaysOld: 60
-
-  - name: "Defense & Border Security AI Systems"
-    enabled: true
-    parameters:
-      organizationName: ["DEPARTMENT OF DEFENSE", "DEPT OF HOMELAND SECURITY", "U.S. CUSTOMS AND BORDER PROTECTION"]
-      ptype: ["s", "p", "o"]
-    notification:
-      priority: high
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["border security", "surveillance", "threat detection", "anomaly detection", "perimeter security", "autonomous surveillance", "real-time monitoring"]
-      naicsCodes: ["541715", "541511", "541512"]  # R&D and Computer Systems
-      exclude: ["training only", "simulation only"]
-      maxDaysOld: 60
-
-  - name: "Drone Detection & Counter-UAS Systems"
-    enabled: true
-    parameters:
-      title: ["drone", "UAS", "UAV", "counter-drone"]
-      organizationName: ["DEPARTMENT OF DEFENSE", "DEPT OF HOMELAND SECURITY"]
-      ptype: ["s", "p", "o"]
-    notification:
-      priority: high
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["drone detection", "counter-UAS", "counter-drone", "unmanned aerial", "aerial surveillance", "beyond visual line of sight", "BVLOS", "aerial threat"]
-      naicsCodes: ["541715", "334511"]  # R&D and Electronic Equipment
-      exclude: ["training", "educational"]
-      maxDaysOld: 60
-
-  - name: "Public Safety & Urban Security AI"
-    enabled: true
-    parameters:
-      title: ["public safety", "urban security", "smart city"]
-      organizationName: ["DEPT OF HOMELAND SECURITY", "FEMA", "DEPT OF JUSTICE"]
-    notification:
-      priority: medium
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["public safety", "urban security", "smart city", "emergency response", "situational awareness", "crowd monitoring", "traffic safety", "campus security"]
-      naicsCodes: ["541715", "541511", "561621"]  # R&D, IT Services, Security
-      exclude: ["training only", "educational"]
-      maxDaysOld: 60
-
-  - name: "SBIR/STTR AI & Robotics Research"
-    enabled: true
-    parameters:
-      title: ["SBIR", "STTR"]
-      organizationName: ["DEPARTMENT OF DEFENSE", "NATIONAL SCIENCE FOUNDATION", "DEPT OF ENERGY"]
-    notification:
-      priority: high
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["SBIR", "STTR", "artificial intelligence", "robotics", "autonomous systems", "machine learning", "computer vision", "sensor fusion", "edge computing"]
-      naicsCodes: ["541715", "541511"]  # R&D Services
-      exclude: ["Phase III only", "follow-on only"]
-      maxDaysOld: 60
-
-  - name: "Transportation & Infrastructure AI"
-    enabled: true
-    parameters:
-      title: ["transportation", "infrastructure", "smart transportation"]
-      organizationName: ["DEPT OF TRANSPORTATION", "FEDERAL HIGHWAY ADMINISTRATION", "FEDERAL AVIATION ADMINISTRATION"]
-    notification:
-      priority: medium
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-      digest: true
-    advanced:
-      include: ["transportation safety", "road maintenance", "infrastructure monitoring", "autonomous vehicles", "traffic management", "runway safety", "foreign object debris", "FOD"]
-      naicsCodes: ["541715", "541511", "541512"]
-      maxDaysOld: 60
-
-  - name: "Intelligence & Surveillance Technologies"
-    enabled: true
-    parameters:
-      title: ["intelligence", "surveillance", "reconnaissance"]
-      organizationName: ["DEPT OF DEFENSE", "DEFENSE INTELLIGENCE AGENCY", "NATIONAL GEOSPATIAL-INTELLIGENCE AGENCY"]
-    notification:
-      priority: high
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["intelligence", "surveillance", "reconnaissance", "ISR", "threat analysis", "pattern recognition", "multi-sensor fusion", "real-time analytics", "geospatial intelligence"]
-      naicsCodes: ["541715", "541511", "541512"]
-      exclude: ["training only", "educational"]
-      maxDaysOld: 60
-
-  - name: "Sensor Fusion & Multi-Modal AI"
-    enabled: true
-    parameters:
-      title: ["sensor fusion", "multi-sensor", "multi-modal"]
-    notification:
-      priority: medium
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["sensor fusion", "multi-sensor", "multi-modal", "computer vision", "audio processing", "radar", "lidar", "thermal imaging", "data fusion"]
-      naicsCodes: ["541715", "334511", "541511"]
-      maxDaysOld: 60
-
-  - name: "Edge Computing & On-Device AI"
-    enabled: true
-    parameters:
-      title: ["edge computing", "on-device", "embedded AI"]
-    notification:
-      priority: medium
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-      digest: true
-    advanced:
-      include: ["edge computing", "on-device", "embedded AI", "low-power AI", "real-time processing", "autonomous systems", "distributed intelligence"]
-      naicsCodes: ["541715", "334413", "541511"]
-      maxDaysOld: 60
-
-  - name: "Broad AI/ML/Computer Vision - All Federal Agencies"
-    enabled: true
-    parameters:
-      # No title or org restrictions - cast wider net
-      ptype: ["s", "p", "o"]
-    notification:
-      priority: medium
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-      digest: true
-    advanced:
-      include: ["artificial intelligence", "machine learning", "computer vision", "deep learning", "neural network", "AI", "ML", "object detection", "image analysis", "pattern recognition", "data science", "automation", "autonomous", "intelligent systems", "predictive analytics", "natural language processing", "NLP", "computer science", "algorithm", "software development", "data processing", "analytics", "surveillance", "monitoring", "detection", "classification", "identification", "recognition", "tracking", "analysis", "modeling", "simulation", "sensor", "camera", "video", "imaging", "visual", "optical"]
-      naicsCodes: ["541511", "541512", "541715", "334413", "334511", "541513", "518210", "541990"]
-      exclude: ["canceled", "cancelled", "withdrawn", "training only", "educational only", "construction", "janitorial", "catering", "food service", "landscaping", "maintenance only", "cleaning", "transportation only", "shipping", "logistics only", "printing", "office supplies", "furniture", "real estate", "leasing"]
-      maxDaysOld: 60
-
-  - name: "Computer Vision & Image Analysis - All Applications"
-    enabled: true
-    parameters:
-      title: ["image processing", "computer vision", "image analysis", "counting", "identification", "object detection", "pattern recognition"]
-    notification:
-      priority: medium
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["image processing", "computer vision", "image analysis", "object detection", "object counting", "species identification", "wildlife monitoring", "environmental monitoring", "scientific imaging", "automated counting", "pattern recognition", "machine learning", "AI models", "VIAME", "annotation", "visual inspection", "quality control", "defect detection", "medical imaging", "satellite imagery", "aerial imagery"]
-      naicsCodes: ["541511", "541715", "541512"]  # Custom Programming, R&D, Computer Systems
-      exclude: ["training only", "educational", "manual processing", "graphic design", "web design"]
+      include: [
+        # Core AI Technologies (from Skylark focus)
+        "artificial intelligence", "machine learning", "computer vision", "AI", "ML",
+        "brain-inspired", "neuromorphic", "adaptive AI", "edge AI", "on-device learning",
+        "continuous learning", "lifelong learning", "self-learning", "autonomous",
+        
+        # Defense & Security (core Skylark market)
+        "defense", "border security", "surveillance", "threat detection", "perimeter security",
+        "drone detection", "counter-UAS", "counter-drone", "unmanned aerial", "UAS", "UAV",
+        "intelligence", "reconnaissance", "ISR", "geospatial intelligence",
+        
+        # Skylark Product Areas
+        "sensor fusion", "multi-sensor", "multi-modal", "real-time monitoring",
+        "anomaly detection", "pattern recognition", "object detection", "tracking",
+        "image analysis", "video analytics", "beyond visual line of sight", "BVLOS",
+        
+        # Transportation & Infrastructure (Skylark domain)
+        "transportation safety", "infrastructure monitoring", "runway safety", 
+        "foreign object debris", "FOD", "road maintenance", "traffic management",
+        
+        # Public Safety & Campus Security (Skylark focus)
+        "public safety", "campus security", "emergency response", "situational awareness",
+        "crowd monitoring", "access control", "perimeter monitoring",
+        
+        # Research Programs (DARPA, SBIR/STTR)
+        "DARPA", "SBIR", "STTR", "research", "innovation", "prototype",
+        "AIE", "Artificial Intelligence Exploration", "transfer learning"
+      ]
+      naicsCodes: ["541715", "541511", "541512", "334511", "334413", "561621"]
+      exclude: [
+        "canceled", "cancelled", "withdrawn", "training only", "educational only",
+        "construction", "janitorial", "catering", "food service", "landscaping", 
+        "maintenance only", "cleaning", "transportation only", "shipping", 
+        "logistics only", "printing", "office supplies", "furniture", "real estate", "leasing"
+      ]
       maxDaysOld: 60
