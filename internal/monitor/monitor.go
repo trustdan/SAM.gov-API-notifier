@@ -168,6 +168,9 @@ func (m *Monitor) Run(ctx context.Context) error {
 		}
 	}
 
+	// Update last run time
+	m.state.SetLastRun(time.Now())
+
 	// Save state
 	if !m.dryRun {
 		if err := m.state.Save(); err != nil {
@@ -175,9 +178,6 @@ func (m *Monitor) Run(ctx context.Context) error {
 			return fmt.Errorf("saving state: %w", err)
 		}
 	}
-
-	// Update last run time
-	m.state.SetLastRun(time.Now())
 
 	return nil
 }
