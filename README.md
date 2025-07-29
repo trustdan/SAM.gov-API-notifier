@@ -141,11 +141,49 @@ Options:
 
 ## GitHub Actions Setup
 
+### Prerequisites
+
+1. Set up your local environment variables in `.env` file (for local development):
+```bash
+# Required
+SAM_API_KEY=your-api-key-here
+
+# Email notifications (required for GitHub Actions)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+EMAIL_FROM=your-email@gmail.com
+EMAIL_TO=recipient@company.com
+
+# Slack notifications (optional)
+SLACK_WEBHOOK=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+SLACK_CHANNEL=#opportunities
+SLACK_USERNAME=SAM-Monitor
+```
+
+### GitHub Repository Setup
+
 1. Fork this repository
-2. Add these secrets in Settings → Secrets and variables → Actions:
+
+2. **Add Repository Secrets**: Go to Settings → Secrets and variables → Actions and add:
+
+   **Required Secrets:**
    - `SAM_API_KEY`: Your SAM.gov API key
-   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`: Email settings
-   - `EMAIL_FROM`, `EMAIL_TO`: Email addresses
+   - `SMTP_HOST`: SMTP server hostname (e.g., `smtp.gmail.com`)
+   - `SMTP_PORT`: SMTP server port (e.g., `587`)
+   - `SMTP_USERNAME`: Email username
+   - `SMTP_PASSWORD`: Email password or app password
+   - `EMAIL_FROM`: Sender email address
+   - `EMAIL_TO`: Recipient email address(es)
+
+   **Optional Secrets (for Slack notifications):**
+   - `SLACK_WEBHOOK`: Slack webhook URL
+   - `SLACK_CHANNEL`: Slack channel name (e.g., `#opportunities`)
+   - `SLACK_USERNAME`: Bot display name (e.g., `SAM-Monitor`)
+
+   **Auto-provided (no action needed):**
+   - `GITHUB_TOKEN`: Automatically provided by GitHub
 
 3. Enable GitHub Actions in the Actions tab
 
