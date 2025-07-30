@@ -1,47 +1,12 @@
 queries:
-  - name: "Skylark Labs - AI & Defense Technologies"
+  - name: "Artificial Intelligence"
     enabled: true
     parameters:
-      # Single broad query to avoid rate limits and timeouts
       ptype: ["s", "p", "o"]
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
       channels: ["email", "github"]
     advanced:
-      include: [
-        # Core AI Technologies (from Skylark focus)
-        "artificial intelligence", "machine learning", "computer vision", "AI", "ML",
-        "brain-inspired", "neuromorphic", "adaptive AI", "edge AI", "on-device learning",
-        "continuous learning", "lifelong learning", "self-learning", "autonomous",
-        
-        # Defense & Security (core Skylark market)
-        "defense", "border security", "surveillance", "threat detection", "perimeter security",
-        "drone detection", "counter-UAS", "counter-drone", "unmanned aerial", "UAS", "UAV",
-        "intelligence", "reconnaissance", "ISR", "geospatial intelligence",
-        
-        # Skylark Product Areas
-        "sensor fusion", "multi-sensor", "multi-modal", "real-time monitoring",
-        "anomaly detection", "pattern recognition", "object detection", "tracking",
-        "image analysis", "video analytics", "beyond visual line of sight", "BVLOS",
-        
-        # Transportation & Infrastructure (Skylark domain)
-        "transportation safety", "infrastructure monitoring", "runway safety", 
-        "foreign object debris", "FOD", "road maintenance", "traffic management",
-        
-        # Public Safety & Campus Security (Skylark focus)
-        "public safety", "campus security", "emergency response", "situational awareness",
-        "crowd monitoring", "access control", "perimeter monitoring",
-        
-        # Research Programs (DARPA, SBIR/STTR)
-        "DARPA", "SBIR", "STTR", "research", "innovation", "prototype",
-        "AIE", "Artificial Intelligence Exploration", "transfer learning"
-      ]
-      naicsCodes: ["541715", "541511", "541512", "334511", "334413", "561621"]
-      exclude: [
-        "canceled", "cancelled", "withdrawn", "training only", "educational only",
-        "construction", "janitorial", "catering", "food service", "landscaping", 
-        "maintenance only", "cleaning", "transportation only", "shipping", 
-        "logistics only", "printing", "office supplies", "furniture", "real estate", "leasing"
-      ]
+      include: ["artificial intelligence"]
       maxDaysOld: 60
