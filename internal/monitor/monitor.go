@@ -203,6 +203,25 @@ func (m *Monitor) runQueries(ctx context.Context) ([]samgov.QueryResult, error) 
 	// SAM.gov API has strict rate limits, so we execute queries sequentially
 	// with a delay between each request
 	
+	// Check daily request count
+	currentCount, _ := m.state.GetDailyRequestCount()
+	totalRequests := len(enabledQueries)
+	dailyLimit := 10 // Non-federal account limit
+	if os.Getenv("SAM_ACCOUNT_TYPE") == "federal" {
+		dailyLimit = 1000
+	}
+	
+	remainingRequests := dailyLimit - currentCount
+	log.Printf("Daily API usage: %d/%d requests used (UTC day)", currentCount, dailyLimit)
+	log.Printf("Will make %d API requests (%d remaining after this run)", totalRequests, remainingRequests - totalRequests)
+	
+	if totalRequests > remainingRequests {
+		log.Printf("WARNING: Request count would exceed daily limit! Consider reducing queries.")
+		if remainingRequests <= 0 {
+			return nil, fmt.Errorf("daily API limit already reached (%d/%d)", currentCount, dailyLimit)
+		}
+	}
+	
 	for i, query := range enabledQueries {
 		// Add delay between requests (except for the first one)
 		if i > 0 {
@@ -214,7 +233,7 @@ func (m *Monitor) runQueries(ctx context.Context) ([]samgov.QueryResult, error) 
 		}
 		
 		if m.verbose {
-			log.Printf("Starting query: %s", query.Name)
+			log.Printf("Starting query %d/%d: %s", i+1, totalRequests, query.Name)
 		}
 		
 		start := time.Now()
@@ -253,12 +272,21 @@ func (m *Monitor) executeQuery(ctx context.Context, query config.Query) samgov.Q
 		log.Printf("Query '%s' parameters: %v", query.Name, params)
 	}
 
+	// Increment daily request counter
+	requestCount := m.state.IncrementDailyRequests()
+	if m.verbose {
+		log.Printf("Making API request %d for today (UTC)", requestCount)
+	}
+	
 	// Execute search
 	response, err := m.client.Search(ctx, params)
 	if err != nil {
 		result.Error = fmt.Errorf("API search: %w", err)
 		return result
 	}
+	
+	// Update last successful query time
+	m.state.SetLastSuccessfulQuery(time.Now())
 
 	// Apply advanced filtering if configured
 	opportunities := response.OpportunitiesData

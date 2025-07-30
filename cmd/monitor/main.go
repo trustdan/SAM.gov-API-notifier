@@ -62,6 +62,13 @@ func main() {
 	}
 
 	log.Printf("Starting SAM.gov Monitor")
+	
+	// Warn about API limits for non-federal accounts
+	if os.Getenv("SAM_ACCOUNT_TYPE") == "" {
+		log.Printf("WARNING: Non-federal accounts are limited to 10 API requests per day!")
+		log.Printf("Set SAM_ACCOUNT_TYPE=federal if you have a federal account with higher limits")
+	}
+	
 	if *dryRun {
 		log.Printf("Running in DRY-RUN mode - no notifications will be sent")
 	}

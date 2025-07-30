@@ -17,6 +17,9 @@ type State struct {
 	mu            sync.RWMutex
 	Opportunities map[string]samgov.OpportunityState `json:"opportunities"`
 	LastRun       time.Time                          `json:"last_run"`
+	LastSuccessfulQueryTime time.Time                   `json:"last_successful_query_time"`
+	DailyRequestCount       int                        `json:"daily_request_count"`
+	DailyRequestDate        string                     `json:"daily_request_date"`
 	QueryMetrics  map[string]QueryMetrics            `json:"query_metrics"`
 	filepath      string
 	modified      bool
@@ -165,6 +168,52 @@ func (s *State) SetLastRun(t time.Time) {
 
 	s.LastRun = t
 	s.modified = true
+}
+
+// IncrementDailyRequests increments the daily request counter
+func (s *State) IncrementDailyRequests() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Check if we're in a new UTC day
+	today := time.Now().UTC().Format("2006-01-02")
+	if s.DailyRequestDate != today {
+		s.DailyRequestDate = today
+		s.DailyRequestCount = 0
+	}
+
+	s.DailyRequestCount++
+	s.modified = true
+	return s.DailyRequestCount
+}
+
+// GetDailyRequestCount returns the current daily request count
+func (s *State) GetDailyRequestCount() (int, string) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	today := time.Now().UTC().Format("2006-01-02")
+	if s.DailyRequestDate != today {
+		return 0, today
+	}
+	return s.DailyRequestCount, s.DailyRequestDate
+}
+
+// SetLastSuccessfulQuery updates the last successful query timestamp
+func (s *State) SetLastSuccessfulQuery(t time.Time) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.LastSuccessfulQueryTime = t
+	s.modified = true
+}
+
+// GetLastSuccessfulQuery returns the last successful query timestamp
+func (s *State) GetLastSuccessfulQuery() time.Time {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	return s.LastSuccessfulQueryTime
 }
 
 // GetLastRun returns the last run timestamp

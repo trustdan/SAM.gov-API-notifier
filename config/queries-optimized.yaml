@@ -1,0 +1,43 @@
+# Optimized configuration for 10 requests/day limit
+# Combines multiple search terms into single queries
+
+queries:
+  # Single combined query to stay within daily limits
+  - name: "Combined Tech Opportunities"
+    enabled: true
+    params:
+      # Combine all search terms with OR
+      q: "artificial intelligence OR machine learning OR cybersecurity OR blockchain OR quantum"
+      # Use maximum limit to get most results per request
+      limit: "1000"
+      # Only active opportunities
+      ptype: "o"
+    # Client-side filtering for specific terms
+    advanced:
+      include:
+        - "AI"
+        - "ML"
+        - "cyber"
+        - "security"
+        - "blockchain"
+        - "quantum"
+      exclude:
+        - "janitorial"
+        - "landscaping"
+        - "food services"
+      # Only opportunities posted in last 7 days
+      max_days_old: 7
+
+# Global settings
+settings:
+  # Only look back 7 days to reduce result volume
+  lookback_days: 7
+  # Notification settings
+  notifications:
+    # Batch notifications to reduce volume
+    digest_mode: true
+    digest_schedule: "daily"
+    # High value threshold for immediate notifications
+    immediate_threshold: 1000000
+  # Request limiting
+  max_requests_per_run: 1  # Stay well within 10/day limit

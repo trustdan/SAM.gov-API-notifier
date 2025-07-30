@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -14,7 +17,7 @@ import (
 const (
 	DefaultBaseURL = "https://api.sam.gov/opportunities/v2/search"
 	DefaultTimeout = 30 * time.Second
-	UserAgent      = "SAM.gov-Monitor/1.0"
+	DefaultUserAgent = "SAM.gov-Monitor/1.0"
 )
 
 // Client represents a SAM.gov API client
@@ -59,9 +62,20 @@ func (c *Client) Search(ctx context.Context, params map[string]string) (*SearchR
 		return nil, fmt.Errorf("API key is required")
 	}
 
-	// Retry configuration
-	maxRetries := 3
-	baseDelay := 5 * time.Second // Increased base delay for rate limits
+	// Retry configuration with environment variable overrides
+	maxRetries := 0 // Default to no retries to preserve daily quota
+	if envRetries := os.Getenv("SAM_MAX_RETRIES"); envRetries != "" {
+		if n, err := strconv.Atoi(envRetries); err == nil && n >= 0 {
+			maxRetries = n
+		}
+	}
+	
+	baseDelay := 5 * time.Second
+	if envDelay := os.Getenv("SAM_RATE_LIMIT_DELAY"); envDelay != "" {
+		if d, err := time.ParseDuration(envDelay); err == nil {
+			baseDelay = d
+		}
+	}
 	
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Build URL with parameters
@@ -87,7 +101,12 @@ func (c *Client) Search(ctx context.Context, params map[string]string) (*SearchR
 			return nil, fmt.Errorf("creating request: %w", err)
 		}
 
-		req.Header.Set("User-Agent", UserAgent)
+		// Use custom user agent if provided
+		userAgent := DefaultUserAgent
+		if envUA := os.Getenv("SAM_USER_AGENT"); envUA != "" {
+			userAgent = envUA
+		}
+		req.Header.Set("User-Agent", userAgent)
 		req.Header.Set("Accept", "application/json")
 
 		// Execute request
@@ -101,6 +120,14 @@ func (c *Client) Search(ctx context.Context, params map[string]string) (*SearchR
 			return nil, fmt.Errorf("executing request: %w", err)
 		}
 
+		// Log rate limit headers if available
+		if remaining := resp.Header.Get("X-RateLimit-Remaining"); remaining != "" {
+			log.Printf("Rate limit remaining: %s", remaining)
+		}
+		if retryAfter := resp.Header.Get("Retry-After"); retryAfter != "" {
+			log.Printf("Retry-After header: %s", retryAfter)
+		}
+		
 		// Check status code
 		if resp.StatusCode != http.StatusOK {
 			resp.Body.Close()
@@ -111,11 +138,17 @@ func (c *Client) Search(ctx context.Context, params map[string]string) (*SearchR
 				Details:    resp.Status,
 			}
 			
-			// Retry on rate limit errors with exponential backoff
+			// Retry on rate limit errors with exponential backoff + jitter
 			if resp.StatusCode == 429 && attempt < maxRetries {
-				delay := time.Duration(1<<attempt) * baseDelay * 2 // Longer delay for rate limits
-				log.Printf("Received 429 rate limit error, retrying in %v (attempt %d/%d)", delay, attempt+1, maxRetries)
-				time.Sleep(delay)
+				// Calculate delay with exponential backoff
+				delay := time.Duration(1<<attempt) * baseDelay
+				
+				// Add jitter (random 0-50% additional delay)
+				jitter := time.Duration(rand.Float64() * 0.5 * float64(delay))
+				totalDelay := delay + jitter
+				
+				log.Printf("Received 429 rate limit error, retrying in %v (attempt %d/%d)", totalDelay, attempt+1, maxRetries)
+				time.Sleep(totalDelay)
 				continue
 			}
 			
@@ -146,8 +179,8 @@ func (c *Client) SearchWithDefaults(ctx context.Context, customParams map[string
 	params["postedFrom"] = from.Format("01/02/2006")
 	params["postedTo"] = to.Format("01/02/2006")
 
-	// Set default pagination
-	params["limit"] = "100"
+	// Set default pagination - use maximum to minimize API calls
+	params["limit"] = "1000"
 	params["offset"] = "0"
 
 	// Merge custom parameters (they override defaults)
@@ -196,9 +229,9 @@ func BuildSearchParams(queryParams map[string]interface{}, lookbackDays int) map
 		}
 	}
 
-	// Set pagination defaults if not specified
+	// Set pagination defaults if not specified - use maximum to minimize API calls
 	if params["limit"] == "" {
-		params["limit"] = "100"
+		params["limit"] = "1000"
 	}
 	if params["offset"] == "" {
 		params["offset"] = "0"
