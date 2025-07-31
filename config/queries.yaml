@@ -3,10 +3,11 @@ queries:
     enabled: true
     parameters:
       ptype: ["o", "k", "p", "r"]
+      title: "system"
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
       channels: ["email", "github"]
     advanced:
-      include: ["AI", "artificial intelligence", "detection", "monitoring", "autonomous", "sensor", "camera", "tower", "drone", "border security", "threat detection"]
+      include: ["AI", "artificial intelligence", "machine learning", "ML", "autonomous", "detection", "monitoring", "surveillance", "cybersecurity", "cyber security", "threat detection", "sensor", "camera", "tower", "drone", "border security", "computer vision", "deep learning", "neural network"]
       maxDaysOld: 90
