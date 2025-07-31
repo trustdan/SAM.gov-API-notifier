@@ -1,13 +1,39 @@
 queries:
-  - name: "Artificial Intelligence"
+  - name: "AI Tools & Software"
     enabled: true
     parameters:
       ptype: ["o"]
-      title: "artificial intelligence"
+      title: "AI"
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
       channels: ["email", "github"]
     advanced:
-      include: ["AI", "machine learning", "neural network", "deep learning", "computer vision", "sensor fusion", "edge computing", "autonomous systems", "object detection", "threat detection"]
+      include: ["artificial intelligence", "machine learning", "neural network", "deep learning", "computer vision", "copilot", "assistant", "automation", "data science"]
+      maxDaysOld: 90
+  
+  - name: "Software & Technology"
+    enabled: true
+    parameters:
+      ptype: ["o"]
+      title: "software"
+    notification:
+      priority: medium
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email"]
+    advanced:
+      include: ["AI", "artificial intelligence", "machine learning", "automation", "intelligent", "analytics", "data"]
+      maxDaysOld: 90
+      
+  - name: "IT Services" 
+    enabled: true
+    parameters:
+      ptype: ["o"]
+      title: "IT"
+    notification:
+      priority: medium
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email"]
+    advanced:
+      include: ["AI", "artificial intelligence", "machine learning", "automation", "intelligent", "copilot", "assistant"]
       maxDaysOld: 90
