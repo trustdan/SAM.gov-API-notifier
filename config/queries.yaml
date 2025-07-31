@@ -3,7 +3,6 @@ queries:
     enabled: true
     parameters:
       ptype: ["o", "k", "p", "r"]
-      title: "security"
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
