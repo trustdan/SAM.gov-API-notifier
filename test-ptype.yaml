@@ -1,0 +1,44 @@
+queries:
+  - name: "Test Solicitations"
+    enabled: true
+    parameters:
+      ptype: ["o"]
+    notification:
+      priority: high
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email"]
+    advanced:
+      maxDaysOld: 90
+  
+  - name: "Test Combined"
+    enabled: false
+    parameters:
+      ptype: ["k"]
+    notification:
+      priority: high
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email"]
+    advanced:
+      maxDaysOld: 90
+  
+  - name: "Test Pre-solicitation"
+    enabled: false
+    parameters:
+      ptype: ["p"]
+    notification:
+      priority: high
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email"]
+    advanced:
+      maxDaysOld: 90
+  
+  - name: "Test Sources Sought"
+    enabled: false
+    parameters:
+      ptype: ["r"]
+    notification:
+      priority: high
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email"]
+    advanced:
+      maxDaysOld: 90
