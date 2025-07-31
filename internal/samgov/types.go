@@ -43,8 +43,8 @@ type Place struct {
 	StreetAddress string      `json:"streetAddress"`
 	City          interface{} `json:"city"` // Can be string or object
 	State         interface{} `json:"state"`
-	ZipCode       string      `json:"zip"`
-	Country       string      `json:"country"`
+	ZipCode       interface{} `json:"zip"`
+	Country       interface{} `json:"country"`
 }
 
 // SearchResponse represents the response from SAM.gov search API
@@ -141,6 +141,54 @@ func (p *Place) GetState() string {
 		// Try abbreviation field
 		if abbr, ok := v["abbreviation"].(string); ok {
 			return abbr
+		}
+	}
+	return ""
+}
+
+// GetZipCode safely extracts zip code string from interface{}
+func (p *Place) GetZipCode() string {
+	if p.ZipCode == nil {
+		return ""
+	}
+	
+	switch v := p.ZipCode.(type) {
+	case string:
+		return v
+	case map[string]interface{}:
+		// Handle object format
+		if zip, ok := v["zip"].(string); ok {
+			return zip
+		}
+		if code, ok := v["code"].(string); ok {
+			return code
+		}
+		if value, ok := v["value"].(string); ok {
+			return value
+		}
+	}
+	return ""
+}
+
+// GetCountry safely extracts country string from interface{}
+func (p *Place) GetCountry() string {
+	if p.Country == nil {
+		return ""
+	}
+	
+	switch v := p.Country.(type) {
+	case string:
+		return v
+	case map[string]interface{}:
+		// Handle object format - try different field names
+		if countryName, ok := v["name"].(string); ok {
+			return countryName
+		}
+		if code, ok := v["code"].(string); ok {
+			return code
+		}
+		if country, ok := v["country"].(string); ok {
+			return country
 		}
 	}
 	return ""
