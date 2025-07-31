@@ -42,7 +42,7 @@ type Award struct {
 type Place struct {
 	StreetAddress string      `json:"streetAddress"`
 	City          interface{} `json:"city"` // Can be string or object
-	State         string      `json:"state"`
+	State         interface{} `json:"state"`
 	ZipCode       string      `json:"zip"`
 	Country       string      `json:"country"`
 }
@@ -117,5 +117,31 @@ func (p *Place) GetCity() string {
 		}
 	}
 	
+	return ""
+}
+
+// GetState safely extracts state string from interface{}
+func (p *Place) GetState() string {
+	if p.State == nil {
+		return ""
+	}
+	
+	switch v := p.State.(type) {
+	case string:
+		return v
+	case map[string]interface{}:
+		// Handle object format - extract state name from nested structure
+		if stateName, ok := v["state"].(string); ok {
+			return stateName
+		}
+		// Try other possible field names
+		if name, ok := v["name"].(string); ok {
+			return name
+		}
+		// Try abbreviation field
+		if abbr, ok := v["abbreviation"].(string); ok {
+			return abbr
+		}
+	}
 	return ""
 }
