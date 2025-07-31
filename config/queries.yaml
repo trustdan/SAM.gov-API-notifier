@@ -3,6 +3,7 @@ queries:
     enabled: true
     parameters:
       ptype: ["s", "p", "o"]
+      title: "artificial intelligence"
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
