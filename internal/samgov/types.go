@@ -40,11 +40,11 @@ type Award struct {
 
 // Place represents place of performance
 type Place struct {
-	StreetAddress string `json:"streetAddress"`
-	City          string `json:"city"`
-	State         string `json:"state"`
-	ZipCode       string `json:"zip"`
-	Country       string `json:"country"`
+	StreetAddress string      `json:"streetAddress"`
+	City          interface{} `json:"city"` // Can be string or object
+	State         string      `json:"state"`
+	ZipCode       string      `json:"zip"`
+	Country       string      `json:"country"`
 }
 
 // SearchResponse represents the response from SAM.gov search API
@@ -90,4 +90,32 @@ type APIError struct {
 
 func (e APIError) Error() string {
 	return e.Message
+}
+
+// GetCity returns the city as a string, handling both string and object types
+func (p *Place) GetCity() string {
+	if p == nil || p.City == nil {
+		return ""
+	}
+	
+	switch city := p.City.(type) {
+	case string:
+		return city
+	case map[string]interface{}:
+		// Handle object case - check for common fields
+		if name, ok := city["name"].(string); ok {
+			return name
+		}
+		if value, ok := city["value"].(string); ok {
+			return value
+		}
+		// Try to find any string value in the map
+		for _, v := range city {
+			if str, ok := v.(string); ok && str != "" {
+				return str
+			}
+		}
+	}
+	
+	return ""
 }

@@ -25,6 +25,10 @@ on:
         type: number
         default: 3
 
+permissions:
+  contents: read
+  issues: write
+
 env:
   GO_VERSION: '1.21'
 
