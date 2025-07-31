@@ -1,6 +1,9 @@
 package samgov
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
 
 // Opportunity represents a SAM.gov opportunity
 type Opportunity struct {
@@ -33,9 +36,9 @@ type Contact struct {
 
 // Award contains award information if available
 type Award struct {
-	Date   string  `json:"date"`
-	Number string  `json:"number"`
-	Amount float64 `json:"amount"`
+	Date   string      `json:"date"`
+	Number string      `json:"number"`
+	Amount interface{} `json:"amount"`
 }
 
 // Place represents place of performance
@@ -192,4 +195,28 @@ func (p *Place) GetCountry() string {
 		}
 	}
 	return ""
+}
+
+// GetAmount safely extracts amount as float64 from interface{}
+func (a *Award) GetAmount() float64 {
+	if a == nil || a.Amount == nil {
+		return 0.0
+	}
+	
+	switch v := a.Amount.(type) {
+	case float64:
+		return v
+	case string:
+		// Try to parse string to float
+		if amount, err := strconv.ParseFloat(v, 64); err == nil {
+			return amount
+		}
+		// If parsing fails, return 0
+		return 0.0
+	case int:
+		return float64(v)
+	case int64:
+		return float64(v)
+	}
+	return 0.0
 }
