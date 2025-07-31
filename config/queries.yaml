@@ -3,11 +3,11 @@ queries:
     enabled: true
     parameters:
       ptype: ["s", "p", "o"]
-      title: "artificial intelligence"
+      title: "artificial intelligence AI"
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
       channels: ["email", "github"]
     advanced:
-      include: ["artificial intelligence"]
+      include: ["AI", "machine learning", "neural network", "deep learning"]
       maxDaysOld: 60
