@@ -3,11 +3,11 @@ queries:
     enabled: true
     parameters:
       ptype: ["s", "p", "o"]
-      title: "artificial intelligence AI"
+      title: "artificial intelligence AI computer vision edge computing autonomous"
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
       channels: ["email", "github"]
     advanced:
-      include: ["AI", "machine learning", "neural network", "deep learning"]
+      include: ["AI", "machine learning", "neural network", "deep learning", "computer vision", "sensor fusion", "edge computing", "autonomous systems", "object detection", "threat detection"]
       maxDaysOld: 60
