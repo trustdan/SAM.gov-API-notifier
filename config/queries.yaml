@@ -1,39 +1,13 @@
 queries:
-  - name: "AI Tools & Software"
+  - name: "Defense & Security AI Systems"
     enabled: true
     parameters:
-      ptype: ["o"]
-      title: "AI"
+      ptype: ["o", "k", "p", "r"]
+      title: "surveillance"
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
       channels: ["email", "github"]
     advanced:
-      include: ["artificial intelligence", "machine learning", "neural network", "deep learning", "computer vision", "copilot", "assistant", "automation", "data science"]
-      maxDaysOld: 90
-  
-  - name: "Software & Technology"
-    enabled: true
-    parameters:
-      ptype: ["o"]
-      title: "software"
-    notification:
-      priority: medium
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["AI", "artificial intelligence", "machine learning", "automation", "intelligent", "analytics", "data"]
-      maxDaysOld: 90
-      
-  - name: "IT Services" 
-    enabled: true
-    parameters:
-      ptype: ["o"]
-      title: "IT"
-    notification:
-      priority: medium
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email"]
-    advanced:
-      include: ["AI", "artificial intelligence", "machine learning", "automation", "intelligent", "copilot", "assistant"]
+      include: ["AI", "artificial intelligence", "detection", "monitoring", "autonomous", "sensor", "camera", "tower", "drone", "border security", "threat detection"]
       maxDaysOld: 90
