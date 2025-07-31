@@ -2,7 +2,7 @@ queries:
   - name: "Artificial Intelligence"
     enabled: true
     parameters:
-      ptype: ["s", "p", "o"]
+      ptype: ["o", "k", "p", "r"]
       title: "artificial intelligence AI computer vision edge computing autonomous"
     notification:
       priority: high

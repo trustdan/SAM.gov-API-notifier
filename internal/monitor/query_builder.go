@@ -79,12 +79,16 @@ func (qb *QueryBuilder) convertParameter(key string, value interface{}) (string,
 		
 		switch key {
 		case "ptype":
-			// Posting types: can be multiple, but API expects single value per request
-			// For now, take the first one. TODO: Handle multiple by making multiple requests
-			if str, ok := v[0].(string); ok {
-				return str, nil
+			// Posting types: join multiple values with commas
+			var ptypes []string
+			for _, item := range v {
+				if str, ok := item.(string); ok {
+					ptypes = append(ptypes, str)
+				} else {
+					return "", fmt.Errorf("ptype array contains non-string value")
+				}
 			}
-			return "", fmt.Errorf("ptype array contains non-string value")
+			return strings.Join(ptypes, ","), nil
 			
 		case "typeOfSetAside":
 			// Set-aside types: comma-separated or first value
