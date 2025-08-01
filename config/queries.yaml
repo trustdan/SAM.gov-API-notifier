@@ -1,5 +1,5 @@
 queries:
-  # Search 1: Artificial Intelligence
+  # Single focused search: Artificial Intelligence
   - name: "Artificial Intelligence Opportunities"
     enabled: true
     parameters:
@@ -12,31 +12,3 @@ queries:
     advanced:
       # Minimal exclusions only - cast a wide net
       exclude: ["medical", "healthcare", "education", "academic"]
-
-  # Search 2: Autonomous Systems (highly relevant to Skylark's adaptive AI)
-  - name: "Autonomous Systems"
-    enabled: true
-    parameters:
-      ptype: ["o", "k", "p", "r", "s"]
-      title: "autonomous"
-    notification:
-      priority: high
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email", "github"]
-    advanced:
-      # No include filters - let all autonomous systems through
-      exclude: ["medical", "healthcare", "education", "academic"]
-
-  # Search 3: Surveillance (directly relevant to Skylark's products)
-  - name: "Surveillance Systems"
-    enabled: true
-    parameters:
-      ptype: ["o", "k", "p", "r", "s"]
-      title: "surveillance"
-    notification:
-      priority: high
-      recipients: ["danieltuckerrust@gmail.com"]
-      channels: ["email", "github"]
-    advanced:
-      # No include filters - let all surveillance opportunities through
-      exclude: ["medical", "healthcare"]
