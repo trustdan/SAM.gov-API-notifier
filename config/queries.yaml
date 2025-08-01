@@ -2,13 +2,13 @@ queries:
   - name: "Defense & Security AI Systems"
     enabled: true
     parameters:
-      ptype: ["o", "k", "p", "r"]
-      title: "system"
+      ptype: ["o", "k", "p", "r", "s"]
+      title: "artificial intelligence"
     notification:
       priority: high
       recipients: ["danieltuckerrust@gmail.com"]
       channels: ["email", "github"]
     advanced:
-      include: ["artificial intelligence", "machine learning", "autonomous system", "intrusion detection system", "video surveillance system", "maritime surveillance", "cybersecurity", "cyber security", "threat detection", "surveillance camera", "drone detection", "border security", "computer vision", "deep learning", "neural network", "video analytics", "AI system", "ML platform", "intelligent surveillance", "smart sensor", "biometric", "facial recognition", "object detection", "perimeter security", "situational awareness", "wide-area surveillance", "terrain awareness", "anomaly detection", "pattern recognition", "automated detection", "wrong way detection", "counter-UAS", "counter-drone"]
-      exclude: ["medical", "patient", "health", "hospital", "chlorine", "water quality", "environmental monitoring", "HVAC", "heating", "cooling", "fire suppression", "kitchen", "maintenance only", "repair only"]
+      include: ["edge AI", "edge computing", "adaptive AI", "autonomous AI", "self-learning", "neuromorphic", "brain-inspired", "collaborative AI", "distributed AI", "AI platform", "AI framework", "AI deployment", "threat detection", "anomaly detection", "pattern recognition", "real-time AI", "on-device AI", "AI inference", "embedded AI", "defense AI", "military AI", "border security", "surveillance AI", "counter-UAS", "counter-drone", "AI drone", "autonomous drone", "computer vision", "object detection", "video analytics", "AI camera", "smart sensor", "sensor fusion", "multi-modal AI", "AI tower", "perimeter security", "maritime AI", "AI box", "edge device"]
+      exclude: ["medical", "patient", "health", "hospital", "clinical", "diagnosis", "treatment", "therapy", "pharmaceutical", "drug", "FDA", "healthcare", "biomedical", "education", "teaching", "curriculum", "student", "school", "university", "academic", "research only", "study only", "theoretical", "simulation only"]
       maxDaysOld: 90

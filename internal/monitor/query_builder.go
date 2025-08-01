@@ -38,8 +38,8 @@ func (qb *QueryBuilder) BuildParams(query config.Query) (map[string]string, erro
 	params["postedFrom"] = from.Format("01/02/2006")
 	params["postedTo"] = to.Format("01/02/2006")
 
-	// Set pagination defaults
-	params["limit"] = "100"
+	// Set pagination defaults - use maximum to get more results
+	params["limit"] = "1000"
 	params["offset"] = "0"
 
 	// Process query-specific parameters
@@ -158,11 +158,8 @@ func (qb *QueryBuilder) convertParameter(key string, value interface{}) (string,
 
 // applyQueryOverrides applies query-specific parameter adjustments
 func (qb *QueryBuilder) applyQueryOverrides(params map[string]string, query config.Query) {
-	// Adjust limit based on query type
-	if query.Notification.Priority == "high" {
-		// High priority queries might need more results
-		params["limit"] = "200"
-	}
+	// Keep the maximum limit - already set to 1000
+	// No need to adjust based on priority anymore
 
 	// Handle organization name variations
 	if orgName, exists := params["organizationName"]; exists {

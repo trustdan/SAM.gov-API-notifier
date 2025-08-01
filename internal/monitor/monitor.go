@@ -287,6 +287,12 @@ func (m *Monitor) executeQuery(ctx context.Context, query config.Query) samgov.Q
 	
 	// Update last successful query time
 	m.state.SetLastSuccessfulQuery(time.Now())
+	
+	// Log response details
+	if m.verbose {
+		log.Printf("API Response: TotalRecords=%d, Returned=%d, Limit=%d, Offset=%d", 
+			response.TotalRecords, len(response.OpportunitiesData), response.Limit, response.Offset)
+	}
 
 	// Apply advanced filtering if configured
 	opportunities := response.OpportunitiesData
