@@ -9,5 +9,5 @@ queries:
       recipients: ["danieltuckerrust@gmail.com"]
       channels: ["email", "github"]
     advanced:
-      include: ["AI", "artificial intelligence", "machine learning", "ML", "autonomous", "detection", "monitoring", "surveillance", "cybersecurity", "cyber security", "threat detection", "sensor", "camera", "tower", "drone", "border security", "computer vision", "deep learning", "neural network"]
+      include: ["artificial intelligence", "machine learning", "autonomous system", "intrusion detection", "surveillance system", "monitoring system", "cybersecurity", "cyber security", "threat detection", "security camera", "surveillance camera", "drone detection", "border security", "computer vision", "deep learning", "neural network", "video analytics", "security system", "detection system", "AI system", "ML platform", "intelligent", "smart sensor", "biometric", "facial recognition", "object detection", "perimeter security", "situational awareness", "wide-area surveillance", "terrain awareness", "anomaly detection", "pattern recognition", "automated detection"]
       maxDaysOld: 90

@@ -450,30 +450,43 @@ func containsIgnoreCase(text, substr string) bool {
 		return false
 	}
 	
-	// Simple case-insensitive search
-	textLower := make([]rune, 0, len(text))
-	for _, r := range text {
-		if r >= 'A' && r <= 'Z' {
-			textLower = append(textLower, r+32)
-		} else {
-			textLower = append(textLower, r)
-		}
+	// Convert to lowercase for comparison
+	textLower := strings.ToLower(text)
+	substrLower := strings.ToLower(substr)
+	
+	// Special handling for short keywords that cause false positives
+	if len(substrLower) <= 2 {
+		// For short keywords like "AI", "ML", require word boundaries
+		return containsWordIgnoreCase(textLower, substrLower)
 	}
 	
-	substrLower := make([]rune, 0, len(substr))
-	for _, r := range substr {
-		if r >= 'A' && r <= 'Z' {
-			substrLower = append(substrLower, r+32)
-		} else {
-			substrLower = append(substrLower, r)
-		}
+	// For longer keywords, use standard substring search
+	return strings.Contains(textLower, substrLower)
+}
+
+// containsWordIgnoreCase checks if text contains keyword as a whole word
+func containsWordIgnoreCase(text, keyword string) bool {
+	// Add spaces to check word boundaries
+	text = " " + text + " "
+	keyword = " " + keyword + " "
+	
+	// Also check with common punctuation
+	variations := []string{
+		keyword,
+		strings.TrimSpace(keyword) + ":",
+		strings.TrimSpace(keyword) + ",",
+		strings.TrimSpace(keyword) + ".",
+		strings.TrimSpace(keyword) + ";",
+		strings.TrimSpace(keyword) + ")",
+		"(" + strings.TrimSpace(keyword),
+		strings.TrimSpace(keyword) + "-",
+		"-" + strings.TrimSpace(keyword),
+		strings.TrimSpace(keyword) + "/",
+		"/" + strings.TrimSpace(keyword),
 	}
 	
-	textStr := string(textLower)
-	substrStr := string(substrLower)
-	
-	for i := 0; i <= len(textStr)-len(substrStr); i++ {
-		if textStr[i:i+len(substrStr)] == substrStr {
+	for _, variant := range variations {
+		if strings.Contains(text, variant) {
 			return true
 		}
 	}
