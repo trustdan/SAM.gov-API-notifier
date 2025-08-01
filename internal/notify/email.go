@@ -85,6 +85,7 @@ func (en *EmailNotifier) buildEmailBody(notification Notification) (string, erro
 		QueryName:     notification.QueryName,
 		Subject:       notification.Subject,
 		Opportunities: notification.Opportunities,
+		FilteredOut:   notification.FilteredOut,
 		Summary:       notification.Summary,
 		Priority:      string(notification.Priority),
 		Timestamp:     notification.Timestamp,
@@ -256,6 +257,7 @@ type EmailTemplateData struct {
 	QueryName     string              `json:"query_name"`
 	Subject       string              `json:"subject"`
 	Opportunities []samgov.Opportunity `json:"opportunities"`
+	FilteredOut   []samgov.Opportunity `json:"filtered_out,omitempty"`
 	Summary       NotificationSummary `json:"summary"`
 	Priority      string              `json:"priority"`
 	PriorityClass string              `json:"priority_class"`
@@ -439,6 +441,29 @@ const opportunityTemplate = `
             <div style="margin-top: 15px;">
                 <a href="{{.UILink}}" class="btn">View on SAM.gov</a>
             </div>
+        </div>
+    </div>
+    {{end}}
+
+    {{if .FilteredOut}}
+    <div class="filtered-section">
+        <h2 style="color: #999; font-size: 18px; margin-top: 40px; border-top: 2px solid #eee; padding-top: 20px;">
+            🔽 Filtered Out ({{len .FilteredOut}} opportunities)
+        </h2>
+        <p style="color: #666; font-size: 14px;">
+            The following opportunities were excluded based on your filter criteria:
+        </p>
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 4px; margin-top: 10px;">
+            {{range .FilteredOut}}
+            <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                <strong style="color: #666;">{{.Title}}</strong>
+                <br>
+                <span style="font-size: 12px; color: #999;">
+                    ID: {{.NoticeID}} | Posted: {{.PostedDate}} | Type: {{.Type}}
+                    {{if .NAICSCode}}| NAICS: {{.NAICSCode}}{{end}}
+                </span>
+            </div>
+            {{end}}
         </div>
     </div>
     {{end}}

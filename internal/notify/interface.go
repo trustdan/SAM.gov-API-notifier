@@ -23,6 +23,7 @@ type Notification struct {
 	Subject       string                `json:"subject"`
 	Body          Body                  `json:"body"`
 	Opportunities []samgov.Opportunity  `json:"opportunities"`
+	FilteredOut   []samgov.Opportunity  `json:"filtered_out,omitempty"`
 	Summary       NotificationSummary   `json:"summary"`
 	Metadata      map[string]interface{} `json:"metadata"`
 	Timestamp     time.Time             `json:"timestamp"`
@@ -48,6 +49,7 @@ const (
 // NotificationSummary provides quick stats about the notification
 type NotificationSummary struct {
 	NewOpportunities     int `json:"new_opportunities"`
+	FilteredOpportunities int `json:"filtered_opportunities,omitempty"`
 	UpdatedOpportunities int `json:"updated_opportunities"`
 	TotalValue           float64 `json:"total_value,omitempty"`
 	UpcomingDeadlines    int `json:"upcoming_deadlines"`
@@ -272,6 +274,13 @@ func (nb *NotificationBuilder) WithUpdatedOpportunities(opportunities []samgov.O
 // WithSubject sets the notification subject
 func (nb *NotificationBuilder) WithSubject(subject string) *NotificationBuilder {
 	nb.notification.Subject = subject
+	return nb
+}
+
+// WithFilteredOpportunities sets opportunities that were filtered out
+func (nb *NotificationBuilder) WithFilteredOpportunities(filteredOut []samgov.Opportunity) *NotificationBuilder {
+	nb.notification.FilteredOut = filteredOut
+	nb.notification.Summary.FilteredOpportunities = len(filteredOut)
 	return nb
 }
 

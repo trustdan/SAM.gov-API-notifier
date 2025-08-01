@@ -1,0 +1,47 @@
+queries:
+  # Broader AI search to catch more opportunities
+  - name: "All AI/ML Opportunities"
+    enabled: true
+    parameters:
+      ptype: ["o", "k", "p", "r", "s"]
+      title: "artificial intelligence"
+    notification:
+      priority: medium
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email"]
+    advanced:
+      # Much broader include list - any of these keywords will match
+      include: ["AI", "ML", "machine learning", "deep learning", "neural", "algorithm", "data", "analytics", "intelligence", "autonomous", "automated", "cognitive", "predictive", "classification", "recognition", "detection", "analysis", "processing", "model", "training"]
+      # Still exclude medical/education
+      exclude: ["medical", "patient", "health", "hospital", "clinical", "healthcare", "education", "student", "school", "university", "academic"]
+      maxDaysOld: 90
+
+  # Separate search for surveillance/security
+  - name: "Surveillance & Security Systems"
+    enabled: true
+    parameters:
+      ptype: ["o", "k", "p", "r", "s"]
+      title: "surveillance"
+    notification:
+      priority: high
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email", "github"]
+    advanced:
+      include: ["video", "camera", "detection", "monitoring", "security", "analytics", "AI", "intelligent", "smart", "automated", "real-time", "sensor", "tracking"]
+      exclude: ["maintenance only", "repair only", "medical", "healthcare"]
+      maxDaysOld: 90
+
+  # Edge computing specific
+  - name: "Edge Computing & IoT"
+    enabled: true
+    parameters:
+      ptype: ["o", "k", "p", "r", "s"]
+      title: "edge computing"
+    notification:
+      priority: high
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email", "github"]
+    advanced:
+      include: ["AI", "ML", "inference", "device", "embedded", "real-time", "low latency", "on-device", "IoT", "sensor"]
+      exclude: ["medical", "healthcare"]
+      maxDaysOld: 90

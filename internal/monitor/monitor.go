@@ -162,7 +162,7 @@ func (m *Monitor) Run(ctx context.Context) error {
 		if !m.dryRun && (newCount > 0 || updatedCount > 0) {
 			query := m.findQueryByName(result.QueryName)
 			if query != nil {
-				err := m.sendNotifications(ctx, *query, diff)
+				err := m.sendNotifications(ctx, *query, diff, result.FilteredOut)
 				if err != nil {
 					report.Errors = append(report.Errors, fmt.Sprintf("Notification error for '%s': %s", result.QueryName, err.Error()))
 					log.Printf("Failed to send notifications for query '%s': %v", result.QueryName, err)
@@ -296,29 +296,46 @@ func (m *Monitor) executeQuery(ctx context.Context, query config.Query) samgov.Q
 
 	// Apply advanced filtering if configured
 	opportunities := response.OpportunitiesData
+	var filteredOut []samgov.Opportunity
 	if len(opportunities) > 0 {
-		opportunities = m.applyAdvancedFilters(opportunities, query.Advanced)
+		opportunities, filteredOut = m.applyAdvancedFilters(opportunities, query.Advanced)
 	}
 
 	result.Opportunities = opportunities
+	result.FilteredOut = filteredOut
 	return result
 }
 
-// applyAdvancedFilters applies client-side filtering
-func (m *Monitor) applyAdvancedFilters(opportunities []samgov.Opportunity, advanced config.AdvancedQuery) []samgov.Opportunity {
+// applyAdvancedFilters applies client-side filtering and returns both accepted and filtered opportunities
+func (m *Monitor) applyAdvancedFilters(opportunities []samgov.Opportunity, advanced config.AdvancedQuery) (accepted []samgov.Opportunity, filteredOut []samgov.Opportunity) {
 	if len(advanced.Include) == 0 && len(advanced.Exclude) == 0 && advanced.MaxDaysOld == 0 {
-		return opportunities // No filters configured
+		return opportunities, nil // No filters configured
 	}
 
-	filtered := make([]samgov.Opportunity, 0)
+	accepted = make([]samgov.Opportunity, 0)
+	filteredOut = make([]samgov.Opportunity, 0)
+	
+	if m.verbose {
+		log.Printf("Applying advanced filters to %d opportunities", len(opportunities))
+	}
 	
 	for _, opp := range opportunities {
 		if m.matchesAdvancedCriteria(opp, advanced) {
-			filtered = append(filtered, opp)
+			accepted = append(accepted, opp)
+		} else {
+			filteredOut = append(filteredOut, opp)
+			if m.verbose {
+				log.Printf("Filtered out: %s (ID: %s)", opp.Title, opp.NoticeID)
+			}
 		}
 	}
 	
-	return filtered
+	if m.verbose {
+		log.Printf("Advanced filtering: %d → %d opportunities (%d filtered out)", 
+			len(opportunities), len(accepted), len(filteredOut))
+	}
+	
+	return accepted, filteredOut
 }
 
 // matchesAdvancedCriteria checks if opportunity matches advanced filters
@@ -326,6 +343,9 @@ func (m *Monitor) matchesAdvancedCriteria(opp samgov.Opportunity, advanced confi
 	// First check exclude keywords - if any match, reject immediately
 	for _, keyword := range advanced.Exclude {
 		if containsIgnoreCase(opp.Title, keyword) || containsIgnoreCase(opp.Description, keyword) {
+			if m.verbose {
+				log.Printf("  Excluded by keyword '%s': %s", keyword, opp.Title)
+			}
 			return false
 		}
 	}
@@ -333,6 +353,7 @@ func (m *Monitor) matchesAdvancedCriteria(opp samgov.Opportunity, advanced confi
 	// Check include keywords
 	if len(advanced.Include) > 0 {
 		found := false
+		matchedKeyword := ""
 		for _, keyword := range advanced.Include {
 			// For generic terms like "monitoring system" or "security system", 
 			// require additional context to avoid false positives
@@ -342,11 +363,17 @@ func (m *Monitor) matchesAdvancedCriteria(opp samgov.Opportunity, advanced confi
 			
 			if containsIgnoreCase(opp.Title, keyword) || containsIgnoreCase(opp.Description, keyword) {
 				found = true
+				matchedKeyword = keyword
 				break
 			}
 		}
 		if !found {
+			if m.verbose {
+				log.Printf("  No matching include keywords for: %s", opp.Title)
+			}
 			return false
+		} else if m.verbose {
+			log.Printf("  Matched by keyword '%s': %s", matchedKeyword, opp.Title)
 		}
 	}
 
@@ -624,10 +651,10 @@ func buildNotificationConfig() notify.NotificationConfig {
 }
 
 // sendNotifications sends notifications for opportunities
-func (m *Monitor) sendNotifications(ctx context.Context, query config.Query, diff samgov.DiffResult) error {
+func (m *Monitor) sendNotifications(ctx context.Context, query config.Query, diff samgov.DiffResult, filteredOut []samgov.Opportunity) error {
 	// Send notifications for new opportunities
 	if len(diff.New) > 0 {
-		if err := m.sendNewOpportunityNotifications(ctx, query, diff.New); err != nil {
+		if err := m.sendNewOpportunityNotifications(ctx, query, diff.New, filteredOut); err != nil {
 			return fmt.Errorf("sending new opportunity notifications: %w", err)
 		}
 	}
@@ -643,7 +670,7 @@ func (m *Monitor) sendNotifications(ctx context.Context, query config.Query, dif
 }
 
 // sendNewOpportunityNotifications sends notifications for new opportunities
-func (m *Monitor) sendNewOpportunityNotifications(ctx context.Context, query config.Query, opportunities []samgov.Opportunity) error {
+func (m *Monitor) sendNewOpportunityNotifications(ctx context.Context, query config.Query, opportunities []samgov.Opportunity, filteredOut []samgov.Opportunity) error {
 	priority := notify.Priority(query.Notification.Priority)
 	if priority == "" {
 		priority = notify.PriorityMedium
@@ -652,13 +679,19 @@ func (m *Monitor) sendNewOpportunityNotifications(ctx context.Context, query con
 	subject := fmt.Sprintf("🚨 %d New SAM.gov Opportunities - %s", len(opportunities), query.Name)
 
 	// Build notification
-	notification := notify.NewNotificationBuilder().
+	builder := notify.NewNotificationBuilder().
 		WithQuery(query.Name, priority).
 		WithRecipients(query.Notification.Recipients).
 		WithOpportunities(opportunities).
 		WithSubject(subject).
-		WithMetadata("query_type", "new").
-		Build()
+		WithMetadata("query_type", "new")
+	
+	// Add filtered opportunities if any
+	if len(filteredOut) > 0 {
+		builder = builder.WithFilteredOpportunities(filteredOut)
+	}
+	
+	notification := builder.Build()
 
 	// Add calendar attachment if there are deadlines
 	if m.hasDeadlines(opportunities) {

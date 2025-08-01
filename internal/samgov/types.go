@@ -62,6 +62,7 @@ type SearchResponse struct {
 type QueryResult struct {
 	QueryName     string        `json:"queryName"`
 	Opportunities []Opportunity `json:"opportunities"`
+	FilteredOut   []Opportunity `json:"filteredOut,omitempty"`
 	ExecutionTime time.Duration `json:"executionTime"`
 	Error         error         `json:"error,omitempty"`
 }

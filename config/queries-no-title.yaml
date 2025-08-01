@@ -1,0 +1,30 @@
+queries:
+  # Search by organization instead of title
+  - name: "DARPA AI Opportunities"
+    enabled: true
+    parameters:
+      organizationName: "DEFENSE ADVANCED RESEARCH PROJECTS AGENCY"
+      ptype: ["o", "k", "p", "r", "s"]
+    notification:
+      priority: high
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email", "github"]
+    advanced:
+      include: ["AI", "artificial intelligence", "machine learning", "ML", "autonomous", "cognitive", "neural", "intelligent"]
+      exclude: ["medical", "healthcare", "biological", "chemical"]
+      maxDaysOld: 90
+
+  # Search by NAICS code for IT/Software
+  - name: "AI Software Development (NAICS)"
+    enabled: true
+    parameters:
+      naicsCode: "541511"  # Custom Computer Programming Services
+      ptype: ["o", "k", "p", "r", "s"]
+    notification:
+      priority: medium
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email"]
+    advanced:
+      include: ["AI", "artificial intelligence", "machine learning", "ML", "autonomous", "intelligent", "analytics", "algorithm"]
+      exclude: ["medical", "healthcare", "education"]
+      maxDaysOld: 90

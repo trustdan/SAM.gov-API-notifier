@@ -1,5 +1,6 @@
 queries:
-  - name: "Defense & Security AI Systems"
+  # Search 1: Artificial Intelligence
+  - name: "Artificial Intelligence Opportunities"
     enabled: true
     parameters:
       ptype: ["o", "k", "p", "r", "s"]
@@ -9,6 +10,33 @@ queries:
       recipients: ["danieltuckerrust@gmail.com"]
       channels: ["email", "github"]
     advanced:
-      include: ["edge AI", "edge computing", "adaptive AI", "autonomous AI", "self-learning", "neuromorphic", "brain-inspired", "collaborative AI", "distributed AI", "AI platform", "AI framework", "AI deployment", "threat detection", "anomaly detection", "pattern recognition", "real-time AI", "on-device AI", "AI inference", "embedded AI", "defense AI", "military AI", "border security", "surveillance AI", "counter-UAS", "counter-drone", "AI drone", "autonomous drone", "computer vision", "object detection", "video analytics", "AI camera", "smart sensor", "sensor fusion", "multi-modal AI", "AI tower", "perimeter security", "maritime AI", "AI box", "edge device"]
-      exclude: ["medical", "patient", "health", "hospital", "clinical", "diagnosis", "treatment", "therapy", "pharmaceutical", "drug", "FDA", "healthcare", "biomedical", "education", "teaching", "curriculum", "student", "school", "university", "academic", "research only", "study only", "theoretical", "simulation only"]
-      maxDaysOld: 90
+      # Minimal exclusions only - cast a wide net
+      exclude: ["medical", "healthcare", "education", "academic"]
+
+  # Search 2: Autonomous Systems (highly relevant to Skylark's adaptive AI)
+  - name: "Autonomous Systems"
+    enabled: true
+    parameters:
+      ptype: ["o", "k", "p", "r", "s"]
+      title: "autonomous"
+    notification:
+      priority: high
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email", "github"]
+    advanced:
+      # No include filters - let all autonomous systems through
+      exclude: ["medical", "healthcare", "education", "academic"]
+
+  # Search 3: Surveillance (directly relevant to Skylark's products)
+  - name: "Surveillance Systems"
+    enabled: true
+    parameters:
+      ptype: ["o", "k", "p", "r", "s"]
+      title: "surveillance"
+    notification:
+      priority: high
+      recipients: ["danieltuckerrust@gmail.com"]
+      channels: ["email", "github"]
+    advanced:
+      # No include filters - let all surveillance opportunities through
+      exclude: ["medical", "healthcare"]
