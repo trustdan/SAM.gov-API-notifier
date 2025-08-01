@@ -317,23 +317,29 @@ func (m *Monitor) applyAdvancedFilters(opportunities []samgov.Opportunity, advan
 
 // matchesAdvancedCriteria checks if opportunity matches advanced filters
 func (m *Monitor) matchesAdvancedCriteria(opp samgov.Opportunity, advanced config.AdvancedQuery) bool {
+	// First check exclude keywords - if any match, reject immediately
+	for _, keyword := range advanced.Exclude {
+		if containsIgnoreCase(opp.Title, keyword) || containsIgnoreCase(opp.Description, keyword) {
+			return false
+		}
+	}
+
 	// Check include keywords
 	if len(advanced.Include) > 0 {
 		found := false
 		for _, keyword := range advanced.Include {
+			// For generic terms like "monitoring system" or "security system", 
+			// require additional context to avoid false positives
+			if isGenericTerm(keyword) && !hasRelevantContext(opp, keyword) {
+				continue
+			}
+			
 			if containsIgnoreCase(opp.Title, keyword) || containsIgnoreCase(opp.Description, keyword) {
 				found = true
 				break
 			}
 		}
 		if !found {
-			return false
-		}
-	}
-
-	// Check exclude keywords
-	for _, keyword := range advanced.Exclude {
-		if containsIgnoreCase(opp.Title, keyword) || containsIgnoreCase(opp.Description, keyword) {
 			return false
 		}
 	}
@@ -487,6 +493,61 @@ func containsWordIgnoreCase(text, keyword string) bool {
 	
 	for _, variant := range variations {
 		if strings.Contains(text, variant) {
+			return true
+		}
+	}
+	
+	return false
+}
+
+// isGenericTerm checks if a keyword is too generic and needs additional context
+func isGenericTerm(keyword string) bool {
+	genericTerms := []string{
+		"monitoring system",
+		"security system",
+		"detection system",
+	}
+	
+	keywordLower := strings.ToLower(keyword)
+	for _, term := range genericTerms {
+		if keywordLower == term {
+			return true
+		}
+	}
+	return false
+}
+
+// hasRelevantContext checks if an opportunity with a generic term has relevant context
+func hasRelevantContext(opp samgov.Opportunity, genericTerm string) bool {
+	// Define context keywords that make generic terms relevant
+	contextKeywords := []string{
+		"video", "camera", "surveillance", "intrusion", "perimeter",
+		"facial", "recognition", "analytics", "AI", "ML", "intelligent",
+		"automated", "cyber", "threat", "anomaly", "pattern", "behavior",
+		"counter", "drone", "UAS", "maritime", "border", "defense",
+		"military", "tactical", "strategic", "sensor fusion",
+	}
+	
+	text := strings.ToLower(opp.Title + " " + opp.Description)
+	
+	// Check if any context keyword is present
+	for _, context := range contextKeywords {
+		if strings.Contains(text, context) {
+			return true
+		}
+	}
+	
+	// Check NAICS codes for relevant industries
+	relevantNAICS := []string{
+		"541511", // Custom Computer Programming Services
+		"541512", // Computer Systems Design Services
+		"541513", // Computer Facilities Management Services
+		"334111", // Electronic Computer Manufacturing
+		"334511", // Search, Detection, Navigation Instruments
+	}
+	
+	for _, code := range relevantNAICS {
+		if opp.NAICSCode == code {
 			return true
 		}
 	}
